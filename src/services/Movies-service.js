@@ -1,18 +1,18 @@
 export default class MoviesService {
-  _apiBase = "https://api.themoviedb.org";
+  _apiBase = 'https://api.themoviedb.org';
 
   async getResource(url, title) {
     const options = {
-      method: "GET",
+      method: 'GET',
       headers: {
-        accept: "application/json",
+        accept: 'application/json',
         Authorization: `Bearer ${process.env.REACT_APP_API_TOKEN}`,
       },
     };
 
     const response = await fetch(
       `${this._apiBase}${url}?query=${title}&include_adult=false&language=en-US&page=1`,
-      options
+      options,
     );
 
     if (!response.ok) {
@@ -23,7 +23,7 @@ export default class MoviesService {
   }
 
   async getMovies(title) {
-    const res = await this.getResource("/3/search/movie", title);
+    const res = await this.getResource('/3/search/movie', title);
     // console.log(res.results.slice(0, 6));
     return res.results.slice(0, 6);
   }

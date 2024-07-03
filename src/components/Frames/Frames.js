@@ -1,7 +1,8 @@
-import MoviesService from "../../services/Movies-service";
-import { Component } from "react";
-import { List, Typography } from "antd";
-import "./Frames.css";
+import { Component } from 'react';
+import { List, Typography } from 'antd';
+
+import MoviesService from '../../services/Movies-service';
+import './Frames.css';
 
 export default class Frames extends Component {
   state = {
@@ -14,7 +15,7 @@ export default class Frames extends Component {
     const movie = new MoviesService();
 
     movie
-      .getMovies("the way back")
+      .getMovies('the way back')
       .then((result) => this.setState({ isLoaded: true, items: result }))
       .catch((err) => this.setState(err));
   }
@@ -39,7 +40,7 @@ export default class Frames extends Component {
               ellipsis={{
                 rows: 6,
                 expandable: true,
-                symbol: "",
+                symbol: '',
                 tooltip: `${item.overview}`,
               }}
             >

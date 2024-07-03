@@ -1,3 +1,3 @@
-import Frames from "./Frames";
+import Frames from './Frames';
 
 export default Frames;

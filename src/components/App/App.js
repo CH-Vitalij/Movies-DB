@@ -1,5 +1,6 @@
-import { Flex } from "antd";
-import Frames from "../Frames";
+import { Flex } from 'antd';
+
+import Frames from '../Frames';
 
 const App = () => {
   return (
