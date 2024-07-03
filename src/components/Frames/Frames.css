@@ -38,13 +38,32 @@
 }
 
 .genres-list .ant-list-items {
-  display: block;
+  display: flex;
   width: 100%;
+  justify-content: flex-start;
+  gap: 8px;
   background-color: #ffffff;
   padding: 0;
+  padding-bottom: 7px;
 }
 
 .ant-list-item.genres-list__item {
+  border-block-end: none;
   padding: 0;
-  padding-bottom: 7px;
+  display: block;
+  border: 1px solid #D9D9D9 !important;
+  background: #FAFAFA;
+  width: 46px;
+  height: 20px;
+  border-radius: 2px;
+  opacity: 65%;
+  font-family: Inter;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 14.52px;
+  text-align: left;
+  padding-top: 2px;
+  padding-left: 5px;
+  padding-right: 4px;
+  padding-bottom: 3px;
 }
