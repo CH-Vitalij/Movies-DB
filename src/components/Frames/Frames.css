@@ -1,0 +1,16 @@
+.movie-list .ant-list-items {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 1147px;
+  gap: 34px 36px;
+}
+
+.movie-item {
+  gap: 20px;
+}
+
+.overview {
+  width: 228px;
+  height: 129px;
+}
