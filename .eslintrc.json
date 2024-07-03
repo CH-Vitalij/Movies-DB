@@ -21,8 +21,12 @@
   },
   "plugins": ["react", "prettier", "import"],
   "rules": {
+    "indent": ["error", 2, { "SwitchCase": 1 }],
     "prettier/prettier": "error",
     "linebreak-style": ["error", "unix"],
+    "quotes": ["error", "single"],
+    "semi": ["error", "always"],
+    "no-unused-vars": "warn",
     "react/react-in-jsx-scope": "off",
     "react/prop-types": 0,
     "import/no-unresolved": [2, { "caseSensitive": false }],
