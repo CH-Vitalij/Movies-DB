@@ -1,5 +1,5 @@
 import { Component } from 'react';
-import { List, Typography, Layout, Image, Tooltip } from 'antd';
+import { List, Typography, Layout, Image, Tooltip, Spin } from 'antd';
 import { format } from 'date-fns';
 
 import MoviesService from '../../services/Movies-service';
@@ -8,7 +8,7 @@ import './Frames.css';
 export default class Frames extends Component {
   state = {
     items: [],
-    isLoaded: false,
+    loading: true,
     truncated: [],
   };
 
@@ -17,23 +17,41 @@ export default class Frames extends Component {
   };
 
   truncateText = (text, maxLength) => {
-    let len = text.split(' ')[0].length;
+    const arr = text.split(' ');
+    let acc = '';
+    let len = 0;
     if (this.isTextTruncated(text, maxLength)) {
-      return (
-        text.split(' ').reduce((acc, word) => {
-          len += word.length;
-          if (len <= maxLength) {
-            acc = acc + ' ' + word;
-            return acc;
-          } else {
-            return acc;
-          }
-        }) + '...'
-      );
+      for (let word of arr) {
+        len += word.length;
+        if (len <= maxLength) {
+          acc += ' ' + word;
+        } else {
+          return (acc + ' ...').trim();
+        }
+      }
     } else {
       return text;
     }
   };
+
+  // truncateText = (text, maxLength) => {
+  //   let len = text.split(' ')[0].length;
+  //   if (this.isTextTruncated(text, maxLength)) {
+  //     return (
+  //       text.split(' ').reduce((acc, word) => {
+  //         len += word.length;
+  //         if (len <= maxLength) {
+  //           acc = acc + ' ' + word;
+  //           return acc;
+  //         } else {
+  //           return acc;
+  //         }
+  //       }) + ' ...'
+  //     );
+  //   } else {
+  //     return text;
+  //   }
+  // };
 
   componentDidMount() {
     const movie = new MoviesService();
@@ -42,14 +60,17 @@ export default class Frames extends Component {
       .getMovies('the way back')
       .then((result) => {
         const truncated = result.map((item) => this.isTextTruncated(item.overview, 175));
-        this.setState({ isLoaded: true, items: result, truncated });
+        this.setState({ loading: false, items: result, truncated });
       })
       .catch((err) => this.setState(err));
   }
 
   render() {
-    // console.log(this.state);
     const { Paragraph, Title } = Typography;
+
+    if (this.state.loading) {
+      return <Spin />;
+    }
 
     return (
       <List
@@ -61,7 +82,7 @@ export default class Frames extends Component {
           const isTruncated = this.state.truncated[i];
 
           return (
-            <List.Item className="movies-list__frame frame">
+            <List.Item key={item.id} className="movies-list__frame frame">
               <Image
                 width={183}
                 height={281}
