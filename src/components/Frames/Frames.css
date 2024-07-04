@@ -1,10 +1,19 @@
+.box {
+  display: block;
+  flex: none;
+  background-color: #ffffff;
+  width: 1010px;
+  min-height: 100vh;
+}
+
+
 .movies-list .ant-list-items {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   width: 1010px;
   gap: 34px 36px;
-  background-color: #ffffff;
+  /* background-color: #ffffff; */
   padding-top: 21px;
   padding-bottom: 216px;
 }

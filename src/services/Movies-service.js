@@ -16,7 +16,7 @@ export default class MoviesService {
     );
 
     if (!response.ok) {
-      throw new Error(`Could not fetch, received ${response.status}`);
+      throw new Error(`Could not fetch ${this._apiBase}${url}, received ${response.status}`);
     }
 
     return await response.json();
