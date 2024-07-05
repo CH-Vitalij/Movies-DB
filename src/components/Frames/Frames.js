@@ -1,7 +1,8 @@
 import { Component } from 'react';
-import { List, Typography, Layout, Image, Tooltip, Spin, Alert, Button, Popover } from 'antd';
+import { List, Typography, Layout, Image, Tooltip, Spin, Alert, Button, Popover, Modal } from 'antd';
 import { format } from 'date-fns';
 
+import NetworkState from '../NetworkState';
 import MoviesService from '../../services/Movies-service';
 import './Frames.css';
 
@@ -61,18 +62,20 @@ export default class Frames extends Component {
     const hasData = !(loading || error);
 
     const errorMessage = error ? (
-      <Alert
-        message="Woops... Something went wrong, try again late"
-        showIcon
-        type="error"
-        action={
-          <Popover content={errorDetail.toString()}>
-            <Button size="small" danger>
-              Detail
-            </Button>
-          </Popover>
-        }
-      />
+      <Modal closable={false} footer={null} open={error}>
+        <Alert
+          message="Woops... Something went wrong, try again later"
+          showIcon
+          type="error"
+          action={
+            <Popover content={errorDetail.toString()}>
+              <Button size="small" danger>
+                Detail
+              </Button>
+            </Popover>
+          }
+        />
+      </Modal>
     ) : null;
     const spinner = loading ? <Spin size="large" fullscreen /> : null;
     const content = hasData ? (
@@ -81,9 +84,11 @@ export default class Frames extends Component {
 
     return (
       <Layout className="box">
-        {errorMessage}
-        {spinner}
-        {content}
+        <NetworkState>
+          {errorMessage}
+          {spinner}
+          {content}
+        </NetworkState>
       </Layout>
     );
   }
