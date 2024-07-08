@@ -2,11 +2,14 @@ import { Component } from 'react';
 import { List, Typography, Layout, Image, Tooltip, Spin, Alert, Button, Popover, Modal } from 'antd';
 import { format } from 'date-fns';
 
+import SearchBar from '../SearchBar/SearchBar';
 import NetworkState from '../NetworkState';
 import MoviesService from '../../services/Movies-service';
 import './Frames.css';
 
 export default class Frames extends Component {
+  movie = new MoviesService();
+
   state = {
     items: [],
     loading: true,
@@ -28,6 +31,7 @@ export default class Frames extends Component {
         len += word.length;
         if (len <= maxLength) {
           acc += ' ' + word;
+          len += 1;
         } else {
           return (acc + ' ...').trim();
         }
@@ -45,16 +49,32 @@ export default class Frames extends Component {
     });
   };
 
-  componentDidMount() {
-    const movie = new MoviesService();
-
-    movie
-      .getMovies('the way back')
+  DataRequest = (name) => {
+    this.movie
+      .getMovies(name)
       .then((result) => {
         const truncated = result.map((item) => this.isTextTruncated(item.overview, 175));
         this.setState({ loading: false, items: result, truncated });
       })
       .catch(this.onError);
+  };
+
+  handleDataRequest = (name) => {
+    this.DataRequest(name.movie);
+  };
+
+  componentDidMount() {
+    this.DataRequest('the way back');
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    console.log(this.state.items);
+    console.log(prevState.items);
+    // console.log(this.state.items.every((el, i) => el.id !== prevState.items[i].id));
+    if (this.state.items !== prevState.items) {
+      console.log('true');
+      console.log('update', prevProps, prevState);
+    }
   }
 
   render() {
@@ -77,9 +97,14 @@ export default class Frames extends Component {
         />
       </Modal>
     ) : null;
+
     const spinner = loading ? <Spin size="large" fullscreen /> : null;
+
     const content = hasData ? (
-      <FramesView items={items} truncated={truncated} onTruncateText={this.truncateText} />
+      <>
+        <SearchBar onValuesChange={this.handleDataRequest} />
+        <FramesView items={items} truncated={truncated} onTruncateText={this.truncateText} />
+      </>
     ) : null;
 
     return (
@@ -112,7 +137,15 @@ const FramesView = ({ items, truncated, onTruncateText }) => {
 
         return (
           <List.Item key={item.id} className="movies-list__frame frame">
-            <Image width={183} height={281} alt={item.title} src={pic} />
+            <Image
+              width={183}
+              height={281}
+              alt={item.title}
+              src={pic}
+              style={{
+                backgroundColor: 'grey',
+              }}
+            />
             <Layout style={{ width: '228px', backgroundColor: '#ffffff' }}>
               <Title level={5} className="frame__title">
                 {item.title}

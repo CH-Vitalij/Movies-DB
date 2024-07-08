@@ -1,7 +1,6 @@
 import { Flex } from 'antd';
 
 import Frames from '../Frames';
-import NetworkState from '../NetworkState';
 
 const App = () => {
   return (

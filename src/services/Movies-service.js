@@ -24,7 +24,7 @@ export default class MoviesService {
 
   async getMovies(title) {
     const res = await this.getResource('/3/search/movie', title);
-    // console.log(res);
-    return res.results.slice(0, 6);
+    // console.log(res.results);
+    return res.results;
   }
 }
