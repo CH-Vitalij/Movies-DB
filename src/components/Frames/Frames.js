@@ -12,15 +12,16 @@ export default class Frames extends Component {
 
   state = {
     items: [],
-    page: null,
-    totalPages: null,
-    totalItems: null,
+    page: 1,
+    totalPages: 0,
+    totalItems: 0,
     empty: false,
     messageInfo: '',
     loading: false,
     error: false,
     errorDetail: '',
     truncated: [],
+    name: '',
   };
 
   isTextTruncated = (text, maxLength) => {
@@ -54,18 +55,18 @@ export default class Frames extends Component {
     });
   };
 
-  DataRequest = (name, flag) => {
+  DataRequest = (name, pageNum, emptyText) => {
     this.movie
-      .getMovies(name)
+      .getMovies(name, pageNum)
       .then((result) => {
         console.log(result);
 
         const { page, items, totalPages, totalItems } = result;
         const truncated = items.map((item) => this.isTextTruncated(item.overview, 175));
 
-        this.setState({ items, page, totalPages, totalItems, truncated, loading: false });
+        this.setState({ items, page, totalPages, totalItems, truncated, name, loading: false });
 
-        if (items.length === 0 && flag) {
+        if (items.length === 0 && emptyText) {
           this.setState({ empty: true, messageInfo: `No movie with the title "${name}" was found.` });
         }
       })
@@ -73,21 +74,22 @@ export default class Frames extends Component {
   };
 
   handleDataRequest = (name) => {
+    this.setState({ loading: true, empty: false });
+
     if (name.movie !== '') {
-      this.setState({ loading: true });
-      this.DataRequest(name.movie, true);
+      this.DataRequest(name.movie, this.state.page, true);
     } else {
-      this.setState({ empty: false });
-      this.DataRequest(name.movie, false);
+      this.DataRequest(name.movie, this.state.page, false);
     }
   };
 
   componentDidMount() {
-    this.DataRequest('the way back');
+    this.DataRequest('the way back', this.state.page, true);
   }
 
   render() {
-    const { items, loading, error, errorDetail, truncated, messageInfo, empty } = this.state;
+    const { items, page, totalPages, totalItems, loading, error, errorDetail, truncated, messageInfo, empty, name } =
+      this.state;
     const hasData = !(loading || error);
 
     const errorMessage = error ? (
@@ -112,7 +114,17 @@ export default class Frames extends Component {
     const searchBar = <SearchBar onValuesChange={this.handleDataRequest} />;
 
     const frames = hasData ? (
-      <FramesView items={items} truncated={truncated} onTruncateText={this.truncateText} />
+      <FramesView
+        items={items}
+        page={page}
+        totalPages={totalPages}
+        totalItems={totalItems}
+        truncated={truncated}
+        name={name}
+        loading={loading}
+        onTruncateText={this.truncateText}
+        DataRequest={this.DataRequest}
+      />
     ) : null;
 
     return (
@@ -129,7 +141,7 @@ export default class Frames extends Component {
   }
 }
 
-const FramesView = ({ items, truncated, onTruncateText }) => {
+const FramesView = ({ items, page, totalPages, totalItems, truncated, name, loading, onTruncateText, DataRequest }) => {
   const { Paragraph, Title } = Typography;
 
   return (
@@ -137,14 +149,16 @@ const FramesView = ({ items, truncated, onTruncateText }) => {
       className="movies-list"
       itemLayout="horizontal"
       pagination={{
-        onChange: (page, pageSize) => {
-          console.log(page, pageSize);
+        onChange: (pageNum, pageSize) => {
+          console.log(name, pageNum, pageSize, loading);
+          DataRequest(name, pageNum, true);
         },
+        defaultCurrent: '1',
         pageSize: items.length,
         align: 'center',
-        // total: `${items.total_pages}`,
-        // showTotal: (total) => `Total ${total} items`,
-        // hideOnSinglePage: true,
+        total: `${totalItems}`,
+        showTotal: (total) => `Total ${total} items`,
+        hideOnSinglePage: true,
       }}
       dataSource={items}
       renderItem={(item, i) => {

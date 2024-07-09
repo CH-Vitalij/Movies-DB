@@ -1,7 +1,7 @@
 export default class MoviesService {
   _apiBase = 'https://api.themoviedb.org';
 
-  async getResource(url, title) {
+  async getResource(url, title, pageNum = 1) {
     const options = {
       method: 'GET',
       headers: {
@@ -11,19 +11,21 @@ export default class MoviesService {
     };
 
     const response = await fetch(
-      `${this._apiBase}${url}?query=${title}&include_adult=false&language=en-US&page=1`,
+      `${this._apiBase}${url}?query=${title}&include_adult=false&language=en-US&page=${pageNum}`,
       options,
     );
 
     if (!response.ok) {
-      throw new Error(`Could not fetch ${this._apiBase}${url}, received ${response.status}`);
+      throw new Error(
+        `Could not fetch ${this._apiBase}${url}?query=${title}&include_adult=false&language=en-US&page=${pageNum}, received ${response.status}`,
+      );
     }
 
     return await response.json();
   }
 
-  async getMovies(title) {
-    const res = await this.getResource('/3/search/movie', title);
+  async getMovies(title, pageNum) {
+    const res = await this.getResource('/3/search/movie', title, pageNum);
     return this.transformData(res);
   }
 
