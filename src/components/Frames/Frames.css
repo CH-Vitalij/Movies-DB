@@ -17,7 +17,15 @@
   gap: 34px 36px;
   /* background-color: #ffffff; */
   padding-top: 21px;
-  padding-bottom: 216px;
+  padding-bottom: 36px;
+}
+
+.movies-list .ant-list-pagination {
+  margin-block-start: 0;
+}
+
+.movies-list .ant-list-empty-text {
+  display: none;
 }
 
 .ant-list-item.movies-list__frame {

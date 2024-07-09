@@ -1,5 +1,5 @@
 import { Component } from 'react';
-import { List, Typography, Layout, Image, Tooltip, Spin, Alert, Button, Popover, Modal } from 'antd';
+import { List, Typography, Layout, Image, Tooltip, Spin, Alert, Button, Popover, Modal, Empty, Pagination } from 'antd';
 import { format } from 'date-fns';
 
 import SearchBar from '../SearchBar/SearchBar';
@@ -12,7 +12,12 @@ export default class Frames extends Component {
 
   state = {
     items: [],
-    loading: true,
+    page: null,
+    totalPages: null,
+    totalItems: null,
+    empty: false,
+    messageInfo: '',
+    loading: false,
     error: false,
     errorDetail: '',
     truncated: [],
@@ -49,36 +54,40 @@ export default class Frames extends Component {
     });
   };
 
-  DataRequest = (name) => {
+  DataRequest = (name, flag) => {
     this.movie
       .getMovies(name)
       .then((result) => {
-        const truncated = result.map((item) => this.isTextTruncated(item.overview, 175));
-        this.setState({ loading: false, items: result, truncated });
+        console.log(result);
+
+        const { page, items, totalPages, totalItems } = result;
+        const truncated = items.map((item) => this.isTextTruncated(item.overview, 175));
+
+        this.setState({ items, page, totalPages, totalItems, truncated, loading: false });
+
+        if (items.length === 0 && flag) {
+          this.setState({ empty: true, messageInfo: `No movie with the title "${name}" was found.` });
+        }
       })
       .catch(this.onError);
   };
 
   handleDataRequest = (name) => {
-    this.DataRequest(name.movie);
+    if (name.movie !== '') {
+      this.setState({ loading: true });
+      this.DataRequest(name.movie, true);
+    } else {
+      this.setState({ empty: false });
+      this.DataRequest(name.movie, false);
+    }
   };
 
   componentDidMount() {
     this.DataRequest('the way back');
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    console.log(this.state.items);
-    console.log(prevState.items);
-    // console.log(this.state.items.every((el, i) => el.id !== prevState.items[i].id));
-    if (this.state.items !== prevState.items) {
-      console.log('true');
-      console.log('update', prevProps, prevState);
-    }
-  }
-
   render() {
-    const { items, loading, error, errorDetail, truncated } = this.state;
+    const { items, loading, error, errorDetail, truncated, messageInfo, empty } = this.state;
     const hasData = !(loading || error);
 
     const errorMessage = error ? (
@@ -100,19 +109,20 @@ export default class Frames extends Component {
 
     const spinner = loading ? <Spin size="large" fullscreen /> : null;
 
-    const content = hasData ? (
-      <>
-        <SearchBar onValuesChange={this.handleDataRequest} />
-        <FramesView items={items} truncated={truncated} onTruncateText={this.truncateText} />
-      </>
+    const searchBar = <SearchBar onValuesChange={this.handleDataRequest} />;
+
+    const frames = hasData ? (
+      <FramesView items={items} truncated={truncated} onTruncateText={this.truncateText} />
     ) : null;
 
     return (
       <Layout className="box">
         <NetworkState>
           {errorMessage}
+          {searchBar}
+          {empty ? <Empty description={messageInfo} /> : null}
           {spinner}
-          {content}
+          {frames}
         </NetworkState>
       </Layout>
     );
@@ -126,9 +136,19 @@ const FramesView = ({ items, truncated, onTruncateText }) => {
     <List
       className="movies-list"
       itemLayout="horizontal"
+      pagination={{
+        onChange: (page, pageSize) => {
+          console.log(page, pageSize);
+        },
+        pageSize: items.length,
+        align: 'center',
+        // total: `${items.total_pages}`,
+        // showTotal: (total) => `Total ${total} items`,
+        // hideOnSinglePage: true,
+      }}
       dataSource={items}
       renderItem={(item, i) => {
-        const truncatedText = onTruncateText(item.overview, 175);
+        const truncatedText = item.overview ? onTruncateText(item.overview, 175) : '-';
         const isTruncated = truncated[i];
         const releaseDate = item.release_date ? format(new Date(item.release_date), 'MMMM d, yyyy') : '-';
         const pic = item.poster_path
