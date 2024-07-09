@@ -59,14 +59,12 @@ export default class Frames extends Component {
     this.movie
       .getMovies(name, pageNum)
       .then((result) => {
-        console.log(result);
-
         const { page, items, totalPages, totalItems } = result;
         const truncated = items.map((item) => this.isTextTruncated(item.overview, 175));
 
         this.setState({ items, page, totalPages, totalItems, truncated, name, loading: false });
 
-        if (items.length === 0 && emptyText) {
+        if (items.length === 0 && !emptyText) {
           this.setState({ empty: true, messageInfo: `No movie with the title "${name}" was found.` });
         }
       })
@@ -74,17 +72,21 @@ export default class Frames extends Component {
   };
 
   handleDataRequest = (name) => {
-    this.setState({ loading: true, empty: false });
+    this.handleLoaded();
 
     if (name.movie !== '') {
-      this.DataRequest(name.movie, this.state.page, true);
-    } else {
       this.DataRequest(name.movie, this.state.page, false);
+    } else {
+      this.DataRequest(name.movie, this.state.page, true);
     }
   };
 
+  handleLoaded = () => {
+    this.setState({ loading: true, empty: false });
+  };
+
   componentDidMount() {
-    this.DataRequest('the way back', this.state.page, true);
+    this.DataRequest('the way back', this.state.page, false);
   }
 
   render() {
@@ -109,7 +111,7 @@ export default class Frames extends Component {
       </Modal>
     ) : null;
 
-    const spinner = loading ? <Spin size="large" fullscreen /> : null;
+    const spinner = loading ? <Spin size="large" /> : null;
 
     const searchBar = <SearchBar onValuesChange={this.handleDataRequest} />;
 
@@ -121,9 +123,9 @@ export default class Frames extends Component {
         totalItems={totalItems}
         truncated={truncated}
         name={name}
-        loading={loading}
         onTruncateText={this.truncateText}
-        DataRequest={this.DataRequest}
+        onDataRequest={this.DataRequest}
+        onLoaded={this.handleLoaded}
       />
     ) : null;
 
@@ -141,7 +143,17 @@ export default class Frames extends Component {
   }
 }
 
-const FramesView = ({ items, page, totalPages, totalItems, truncated, name, loading, onTruncateText, DataRequest }) => {
+const FramesView = ({
+  items,
+  page,
+  totalPages,
+  totalItems,
+  truncated,
+  name,
+  onTruncateText,
+  onDataRequest,
+  onLoaded,
+}) => {
   const { Paragraph, Title } = Typography;
 
   return (
@@ -150,14 +162,15 @@ const FramesView = ({ items, page, totalPages, totalItems, truncated, name, load
       itemLayout="horizontal"
       pagination={{
         onChange: (pageNum, pageSize) => {
-          console.log(name, pageNum, pageSize, loading);
-          DataRequest(name, pageNum, true);
+          console.log(name, pageNum, pageSize);
+          onLoaded();
+          onDataRequest(name, pageNum, false);
         },
         defaultCurrent: '1',
-        pageSize: items.length,
+        current: `${page}`,
+        pageSize: 20,
         align: 'center',
-        total: `${totalItems}`,
-        showTotal: (total) => `Total ${total} items`,
+        total: totalItems,
         hideOnSinglePage: true,
       }}
       dataSource={items}
