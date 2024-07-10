@@ -1,5 +1,5 @@
 import { Component } from 'react';
-import { List, Typography, Layout, Image, Tooltip, Spin, Alert, Button, Popover, Modal, Empty, Pagination } from 'antd';
+import { List, Typography, Layout, Image, Tooltip, Spin, Alert, Button, Popover, Modal, Empty } from 'antd';
 import { format } from 'date-fns';
 
 import SearchBar from '../SearchBar/SearchBar';
@@ -13,7 +13,6 @@ export default class Frames extends Component {
   state = {
     items: [],
     page: 1,
-    totalPages: 0,
     totalItems: 0,
     empty: false,
     messageInfo: '',
@@ -59,10 +58,10 @@ export default class Frames extends Component {
     this.movie
       .getMovies(name, pageNum)
       .then((result) => {
-        const { page, items, totalPages, totalItems } = result;
+        const { page, items, totalItems } = result;
         const truncated = items.map((item) => this.isTextTruncated(item.overview, 175));
 
-        this.setState({ items, page, totalPages, totalItems, truncated, name, loading: false });
+        this.setState({ items, page, totalItems, truncated, name, loading: false });
 
         if (items.length === 0 && !emptyText) {
           this.setState({ empty: true, messageInfo: `No movie with the title "${name}" was found.` });
@@ -75,9 +74,9 @@ export default class Frames extends Component {
     this.handleLoaded();
 
     if (name.movie !== '') {
-      this.DataRequest(name.movie, this.state.page, false);
+      this.DataRequest(name.movie, 1, false);
     } else {
-      this.DataRequest(name.movie, this.state.page, true);
+      this.DataRequest(name.movie, 1, true);
     }
   };
 
@@ -85,13 +84,8 @@ export default class Frames extends Component {
     this.setState({ loading: true, empty: false });
   };
 
-  componentDidMount() {
-    this.DataRequest('the way back', this.state.page, false);
-  }
-
   render() {
-    const { items, page, totalPages, totalItems, loading, error, errorDetail, truncated, messageInfo, empty, name } =
-      this.state;
+    const { items, page, totalItems, loading, error, errorDetail, truncated, messageInfo, empty, name } = this.state;
     const hasData = !(loading || error);
 
     const errorMessage = error ? (
@@ -119,7 +113,6 @@ export default class Frames extends Component {
       <FramesView
         items={items}
         page={page}
-        totalPages={totalPages}
         totalItems={totalItems}
         truncated={truncated}
         name={name}
@@ -143,17 +136,7 @@ export default class Frames extends Component {
   }
 }
 
-const FramesView = ({
-  items,
-  page,
-  totalPages,
-  totalItems,
-  truncated,
-  name,
-  onTruncateText,
-  onDataRequest,
-  onLoaded,
-}) => {
+const FramesView = ({ items, page, totalItems, truncated, name, onTruncateText, onDataRequest, onLoaded }) => {
   const { Paragraph, Title } = Typography;
 
   return (
@@ -161,8 +144,7 @@ const FramesView = ({
       className="movies-list"
       itemLayout="horizontal"
       pagination={{
-        onChange: (pageNum, pageSize) => {
-          console.log(name, pageNum, pageSize);
+        onChange: (pageNum) => {
           onLoaded();
           onDataRequest(name, pageNum, false);
         },

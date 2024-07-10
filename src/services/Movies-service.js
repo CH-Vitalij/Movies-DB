@@ -33,7 +33,6 @@ export default class MoviesService {
     return {
       page: data.page,
       items: data.results,
-      totalPages: data.total_pages,
       totalItems: data.total_results,
     };
   };
