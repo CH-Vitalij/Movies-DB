@@ -5,7 +5,7 @@ export default class GuestSessionService {
     const options = {
       method: 'GET',
       headers: {
-        accept: 'application/json',
+        Accept: 'application/json',
         Authorization: `Bearer ${process.env.REACT_APP_API_TOKEN}`,
       },
     };
@@ -19,16 +19,61 @@ export default class GuestSessionService {
     return await response.json();
   }
 
-  async createGuestSession() {
-    const res = await this.getResource('/3/authentication/guest_session/new');
-    return this.transformData(res);
+  async postResource(url) {
+    const options = {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json;charset=utf-8',
+        Authorization: `Bearer ${process.env.REACT_APP_API_TOKEN}`,
+      },
+      body: JSON.stringify({ value: 8.5 }),
+    };
+
+    const response = await fetch(`${this._apiBase}${url}`, options);
+
+    if (!response.ok) {
+      throw new Error(`Could not fetch ${this._apiBase}${url}, received ${response.status}`);
+    }
+
+    return await response.json();
   }
 
-  transformData = (data) => {
+  async createGuestSession() {
+    const res = await this.getResource('/3/authentication/guest_session/new');
+    return this.transformDataNewSession(res);
+  }
+
+  async getGenres() {
+    const res = await this.getResource('/3/genre/movie/list?language=en');
+    console.log(res);
+  }
+
+  async rateMovie(guestSessionId, movieId) {
+    const res = await this.postResource(`/3/movie/${movieId}/rating?guest_session_id=${guestSessionId}`);
+    return this.transformDataGrade(res);
+  }
+
+  async getRatedMovies(guestSessionId) {
+    const res = await this.getResource(
+      `/3/guest_session/${guestSessionId}/rated/movies?language=en-US&page=1&sort_by=created_at.asc`,
+    );
+    console.log(res);
+  }
+
+  transformDataNewSession = (data) => {
     return {
       success: data.success,
       guestSessionId: data.guest_session_id,
       expiresAt: data.expires_at,
+    };
+  };
+
+  transformDataGrade = (data) => {
+    return {
+      statusCode: data.status_code,
+      statusMessage: data.status_message,
+      success: data.success,
     };
   };
 }

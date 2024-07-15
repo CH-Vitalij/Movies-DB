@@ -1,5 +1,20 @@
 import { Component } from 'react';
-import { List, Typography, Layout, Image, Tooltip, Spin, Alert, Button, Popover, Modal, Empty, Tabs, Flex } from 'antd';
+import {
+  List,
+  Typography,
+  Layout,
+  Image,
+  Tooltip,
+  Spin,
+  Alert,
+  Button,
+  Popover,
+  Modal,
+  Empty,
+  Tabs,
+  Flex,
+  Rate,
+} from 'antd';
 import { format } from 'date-fns';
 
 import SearchBar from '../SearchBar/SearchBar';
@@ -23,15 +38,45 @@ export default class Frames extends Component {
     errorDetail: '',
     truncated: [],
     name: '',
+    evaluated: false,
+    guestSessionId: null,
+    // rateMovie: false,
   };
+
+  componentDidMount() {
+    this.DataRequest('the way back');
+  }
 
   // componentDidMount() {
   //   this.guestSession
   //     .createGuestSession()
   //     .then((result) => {
-  //       const { success, guestSessionId } = result;
+  //       const { guestSessionId } = result;
+  //       console.log(guestSessionId);
+  //       this.setState({ guestSessionId });
   //     })
   //     .catch(this.onError);
+  // }
+
+  // componentDidUpdate(prevProps, prevState) {
+  //   if (this.state.guestSessionId !== prevState.guestSessionId) {
+  //     console.log('update');
+  //     this.guestSession
+  //       .rateMovie(this.state.guestSessionId, 672)
+  //       .then((result) => {
+  //         console.log(result);
+  //         this.setState({ rateMovie: true });
+  //       })
+  //       .catch(this.onError);
+  //   }
+
+  //   if (this.state.rateMovie !== prevState.rateMovie) {
+  //     console.log('update 2');
+  //     this.guestSession
+  //       .getRatedMovies(this.state.guestSessionId)
+  //       .then((result) => console.log(result))
+  //       .catch(this.onError);
+  //   }
   // }
 
   isTextTruncated = (text, maxLength) => {
@@ -70,7 +115,7 @@ export default class Frames extends Component {
       .getMovies(name, pageNum)
       .then((result) => {
         const { page, items, totalItems } = result;
-        const truncated = items.map((item) => this.isTextTruncated(item.overview, 175));
+        const truncated = items.map((item) => this.isTextTruncated(item.overview, 204));
 
         this.setState({ items, page, totalItems, truncated, name, loading: false });
 
@@ -190,7 +235,7 @@ const FramesView = ({ items, page, totalItems, truncated, name, onTruncateText, 
       }}
       dataSource={items}
       renderItem={(item, i) => {
-        const truncatedText = item.overview ? onTruncateText(item.overview, 175) : '-';
+        const truncatedText = item.overview ? onTruncateText(item.overview, 204) : '-';
         const isTruncated = truncated[i];
         const releaseDate = item.release_date ? format(new Date(item.release_date), 'MMMM d, yyyy') : '-';
         const pic = item.poster_path
@@ -222,6 +267,7 @@ const FramesView = ({ items, page, totalItems, truncated, name, onTruncateText, 
               <Tooltip title={isTruncated ? item.overview : null}>
                 <Paragraph className="frame__overview">{truncatedText}</Paragraph>
               </Tooltip>
+              <Rate allowHalf="true" count={10} className="rate" />
             </Layout>
           </List.Item>
         );
