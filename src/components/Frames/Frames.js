@@ -1,14 +1,16 @@
 import { Component } from 'react';
-import { List, Typography, Layout, Image, Tooltip, Spin, Alert, Button, Popover, Modal, Empty } from 'antd';
+import { List, Typography, Layout, Image, Tooltip, Spin, Alert, Button, Popover, Modal, Empty, Tabs, Flex } from 'antd';
 import { format } from 'date-fns';
 
 import SearchBar from '../SearchBar/SearchBar';
 import NetworkState from '../NetworkState';
 import MoviesService from '../../services/Movies-service';
+import GuestSessionService from '../../services/GuestSession-service';
 import './Frames.css';
 
 export default class Frames extends Component {
   movie = new MoviesService();
+  guestSession = new GuestSessionService();
 
   state = {
     items: [],
@@ -22,6 +24,15 @@ export default class Frames extends Component {
     truncated: [],
     name: '',
   };
+
+  // componentDidMount() {
+  //   this.guestSession
+  //     .createGuestSession()
+  //     .then((result) => {
+  //       const { success, guestSessionId } = result;
+  //     })
+  //     .catch(this.onError);
+  // }
 
   isTextTruncated = (text, maxLength) => {
     return text.length >= maxLength;
@@ -122,14 +133,35 @@ export default class Frames extends Component {
       />
     ) : null;
 
+    const elements = [
+      {
+        key: '1',
+        label: 'Search',
+        children: (
+          <Flex vertical="true" align="center">
+            {errorMessage}
+            {searchBar}
+            {empty ? <Empty description={messageInfo} /> : null}
+            {spinner}
+            {frames}
+          </Flex>
+        ),
+      },
+      {
+        key: '2',
+        label: 'Rated',
+        children: (
+          <Flex vertical="true" align="center">
+            <h1>Hello World!</h1>
+          </Flex>
+        ),
+      },
+    ];
+
     return (
       <Layout className="box">
         <NetworkState>
-          {errorMessage}
-          {searchBar}
-          {empty ? <Empty description={messageInfo} /> : null}
-          {spinner}
-          {frames}
+          <Tabs centered items={elements} />
         </NetworkState>
       </Layout>
     );
@@ -154,6 +186,7 @@ const FramesView = ({ items, page, totalItems, truncated, name, onTruncateText, 
         align: 'center',
         total: totalItems,
         hideOnSinglePage: true,
+        showSizeChanger: false,
       }}
       dataSource={items}
       renderItem={(item, i) => {
