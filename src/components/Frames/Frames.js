@@ -39,48 +39,75 @@ export default class Frames extends Component {
     truncated: [],
     name: '',
     evaluated: false,
-    guestSessionId: null,
-    // rateMovie: false,
+    ratedMovies: [],
   };
 
+  // componentDidMount() {
+  //   this.DataRequest('Harry Potter');
+  // }
+
   componentDidMount() {
-    this.DataRequest('the way back');
+    this.guestSession
+      .createGuestSession()
+      .then((result) => {
+        const { guestSessionId } = result;
+        console.log(guestSessionId);
+        this.guestSessionId = guestSessionId;
+      })
+      .catch(this.onError);
   }
 
-  // componentDidMount() {
-  //   this.guestSession
-  //     .createGuestSession()
-  //     .then((result) => {
-  //       const { guestSessionId } = result;
-  //       console.log(guestSessionId);
-  //       this.setState({ guestSessionId });
-  //     })
-  //     .catch(this.onError);
-  // }
+  componentDidUpdate(prevProps, prevState) {
+    console.log('update');
 
-  // componentDidUpdate(prevProps, prevState) {
-  //   if (this.state.guestSessionId !== prevState.guestSessionId) {
-  //     console.log('update');
-  //     this.guestSession
-  //       .rateMovie(this.state.guestSessionId, 672)
-  //       .then((result) => {
-  //         console.log(result);
-  //         this.setState({ rateMovie: true });
-  //       })
-  //       .catch(this.onError);
-  //   }
+    if (prevState.items.length !== 0) {
+      let ratedMovieId = 0;
+      let ratedMovieIndex = 0;
+      if (
+        this.state.items.some((el, i) => {
+          ratedMovieId = el.id;
+          ratedMovieIndex = i;
+          return prevState.items[i].stars !== el.stars;
+        })
+      ) {
+        console.log('ratedMovieId', ratedMovieId);
+        const currentRatedMovieId = ratedMovieId;
+        const currentRatedMovieIndex = ratedMovieIndex;
 
-  //   if (this.state.rateMovie !== prevState.rateMovie) {
-  //     console.log('update 2');
-  //     this.guestSession
-  //       .getRatedMovies(this.state.guestSessionId)
-  //       .then((result) => console.log(result))
-  //       .catch(this.onError);
-  //   }
-  // }
+        // this.handleLoaded();
+        this.guestSession
+          .rateMovie(this.guestSessionId, currentRatedMovieId, this.state.items[currentRatedMovieIndex].stars)
+          .then((result) => {
+            console.log(result, 'currentRatedMovieId', currentRatedMovieId);
+
+            this.setState(({ items }) => ({
+              items: items.map((el) => (el.id === currentRatedMovieId ? { ...el, ratedMovie: true } : el)),
+              // loading: false,
+            }));
+          })
+          .catch(this.onError);
+      }
+
+      if (
+        this.state.items.some((el, i) => {
+          ratedMovieId = el.id;
+          return prevState.items[i].ratedMovie !== el.ratedMovie;
+        })
+      ) {
+        console.log('update 2');
+        this.guestSession
+          .getRatedMovies(this.guestSessionId)
+          .then((result) => {
+            const { page, ratedMovies, totalItems } = result;
+            this.setState({ ratedMovies, page, totalItems });
+          })
+          .catch(this.onError);
+      }
+    }
+  }
 
   isTextTruncated = (text, maxLength) => {
-    return text.length >= maxLength;
+    return text.length > maxLength;
   };
 
   truncateText = (text, maxLength) => {
@@ -115,7 +142,7 @@ export default class Frames extends Component {
       .getMovies(name, pageNum)
       .then((result) => {
         const { page, items, totalItems } = result;
-        const truncated = items.map((item) => this.isTextTruncated(item.overview, 204));
+        const truncated = items.map((item) => this.isTextTruncated(item.overview, 175));
 
         this.setState({ items, page, totalItems, truncated, name, loading: false });
 
@@ -140,8 +167,15 @@ export default class Frames extends Component {
     this.setState({ loading: true, empty: false });
   };
 
+  handleStars = (value, id) => {
+    this.setState(({ items }) => ({
+      items: items.map((el) => (el.id === id ? { ...el, stars: value } : el)),
+    }));
+  };
+
   render() {
-    const { items, page, totalItems, loading, error, errorDetail, truncated, messageInfo, empty, name } = this.state;
+    const { items, page, totalItems, loading, error, errorDetail, truncated, messageInfo, empty, name, ratedMovies } =
+      this.state;
     const hasData = !(loading || error);
 
     const errorMessage = error ? (
@@ -172,6 +206,21 @@ export default class Frames extends Component {
         totalItems={totalItems}
         truncated={truncated}
         name={name}
+        onStars={this.handleStars}
+        onTruncateText={this.truncateText}
+        onDataRequest={this.DataRequest}
+        onLoaded={this.handleLoaded}
+      />
+    ) : null;
+
+    const ratedFrames = hasData ? (
+      <FramesView
+        items={ratedMovies}
+        page={page}
+        totalItems={totalItems}
+        truncated={truncated}
+        name={name}
+        onStars={this.handleStars}
         onTruncateText={this.truncateText}
         onDataRequest={this.DataRequest}
         onLoaded={this.handleLoaded}
@@ -197,7 +246,7 @@ export default class Frames extends Component {
         label: 'Rated',
         children: (
           <Flex vertical="true" align="center">
-            <h1>Hello World!</h1>
+            {ratedFrames}
           </Flex>
         ),
       },
@@ -213,7 +262,7 @@ export default class Frames extends Component {
   }
 }
 
-const FramesView = ({ items, page, totalItems, truncated, name, onTruncateText, onDataRequest, onLoaded }) => {
+const FramesView = ({ items, page, totalItems, truncated, name, onStars, onTruncateText, onDataRequest, onLoaded }) => {
   const { Paragraph, Title } = Typography;
 
   return (
@@ -235,7 +284,7 @@ const FramesView = ({ items, page, totalItems, truncated, name, onTruncateText, 
       }}
       dataSource={items}
       renderItem={(item, i) => {
-        const truncatedText = item.overview ? onTruncateText(item.overview, 204) : '-';
+        const truncatedText = item.overview ? onTruncateText(item.overview, 175) : '-';
         const isTruncated = truncated[i];
         const releaseDate = item.release_date ? format(new Date(item.release_date), 'MMMM d, yyyy') : '-';
         const pic = item.poster_path
@@ -244,15 +293,7 @@ const FramesView = ({ items, page, totalItems, truncated, name, onTruncateText, 
 
         return (
           <List.Item key={item.id} className="movies-list__frame frame">
-            <Image
-              width={183}
-              height={281}
-              alt={item.title}
-              src={pic}
-              style={{
-                backgroundColor: 'grey',
-              }}
-            />
+            <Image className="img" width={183} alt={item.title} src={pic} />
             <Layout style={{ width: '228px', backgroundColor: '#ffffff' }}>
               <Title level={5} className="frame__title">
                 {item.title}
@@ -267,7 +308,13 @@ const FramesView = ({ items, page, totalItems, truncated, name, onTruncateText, 
               <Tooltip title={isTruncated ? item.overview : null}>
                 <Paragraph className="frame__overview">{truncatedText}</Paragraph>
               </Tooltip>
-              <Rate allowHalf="true" count={10} className="rate" />
+              <Rate
+                allowHalf="true"
+                count={10}
+                className="rate"
+                value={item.stars}
+                onChange={(value) => onStars(value, item.id)}
+              />
             </Layout>
           </List.Item>
         );

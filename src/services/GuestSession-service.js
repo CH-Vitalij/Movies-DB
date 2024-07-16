@@ -19,7 +19,7 @@ export default class GuestSessionService {
     return await response.json();
   }
 
-  async postResource(url) {
+  async postResource(url, rating) {
     const options = {
       method: 'POST',
       headers: {
@@ -27,7 +27,7 @@ export default class GuestSessionService {
         'Content-Type': 'application/json;charset=utf-8',
         Authorization: `Bearer ${process.env.REACT_APP_API_TOKEN}`,
       },
-      body: JSON.stringify({ value: 8.5 }),
+      body: JSON.stringify({ value: rating }),
     };
 
     const response = await fetch(`${this._apiBase}${url}`, options);
@@ -49,8 +49,9 @@ export default class GuestSessionService {
     console.log(res);
   }
 
-  async rateMovie(guestSessionId, movieId) {
-    const res = await this.postResource(`/3/movie/${movieId}/rating?guest_session_id=${guestSessionId}`);
+  async rateMovie(guestSessionId, movieId, rating) {
+    console.log('rating', rating);
+    const res = await this.postResource(`/3/movie/${movieId}/rating?guest_session_id=${guestSessionId}`, rating);
     return this.transformDataGrade(res);
   }
 
@@ -59,6 +60,7 @@ export default class GuestSessionService {
       `/3/guest_session/${guestSessionId}/rated/movies?language=en-US&page=1&sort_by=created_at.asc`,
     );
     console.log(res);
+    return this.transformData(res);
   }
 
   transformDataNewSession = (data) => {
@@ -74,6 +76,14 @@ export default class GuestSessionService {
       statusCode: data.status_code,
       statusMessage: data.status_message,
       success: data.success,
+    };
+  };
+
+  transformData = (data) => {
+    return {
+      page: data.page,
+      ratedMovies: data.results,
+      totalItems: data.total_results,
     };
   };
 }
