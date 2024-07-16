@@ -70,7 +70,6 @@ export default class Frames extends Component {
           return prevState.items[i].stars !== el.stars;
         })
       ) {
-        console.log('ratedMovieId', ratedMovieId);
         const currentRatedMovieId = ratedMovieId;
         const currentRatedMovieIndex = ratedMovieIndex;
 
@@ -78,7 +77,7 @@ export default class Frames extends Component {
         this.guestSession
           .rateMovie(this.guestSessionId, currentRatedMovieId, this.state.items[currentRatedMovieIndex].stars)
           .then((result) => {
-            console.log(result, 'currentRatedMovieId', currentRatedMovieId);
+            console.log(result);
 
             this.setState(({ items }) => ({
               items: items.map((el) => (el.id === currentRatedMovieId ? { ...el, ratedMovie: true } : el)),
@@ -98,6 +97,7 @@ export default class Frames extends Component {
         this.guestSession
           .getRatedMovies(this.guestSessionId)
           .then((result) => {
+            console.log(result);
             const { page, ratedMovies, totalItems } = result;
             this.setState({ ratedMovies, page, totalItems });
           })
@@ -167,7 +167,7 @@ export default class Frames extends Component {
     this.setState({ loading: true, empty: false });
   };
 
-  handleStars = (value, id) => {
+  handleSetStars = (value, id) => {
     this.setState(({ items }) => ({
       items: items.map((el) => (el.id === id ? { ...el, stars: value } : el)),
     }));
@@ -201,12 +201,13 @@ export default class Frames extends Component {
 
     const frames = hasData ? (
       <FramesView
+        // key="search"
         items={items}
         page={page}
         totalItems={totalItems}
         truncated={truncated}
         name={name}
-        onStars={this.handleStars}
+        onStars={this.handleSetStars}
         onTruncateText={this.truncateText}
         onDataRequest={this.DataRequest}
         onLoaded={this.handleLoaded}
@@ -215,12 +216,13 @@ export default class Frames extends Component {
 
     const ratedFrames = hasData ? (
       <FramesView
+        // key="rated"
         items={ratedMovies}
         page={page}
         totalItems={totalItems}
         truncated={truncated}
         name={name}
-        onStars={this.handleStars}
+        onStars={this.handleSetStars}
         onTruncateText={this.truncateText}
         onDataRequest={this.DataRequest}
         onLoaded={this.handleLoaded}
@@ -236,7 +238,7 @@ export default class Frames extends Component {
             {errorMessage}
             {searchBar}
             {empty ? <Empty description={messageInfo} /> : null}
-            {spinner}
+            {/* {spinner} */}
             {frames}
           </Flex>
         ),
@@ -247,6 +249,7 @@ export default class Frames extends Component {
         children: (
           <Flex vertical="true" align="center">
             {ratedFrames}
+            {spinner}
           </Flex>
         ),
       },

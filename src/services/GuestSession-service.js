@@ -50,7 +50,6 @@ export default class GuestSessionService {
   }
 
   async rateMovie(guestSessionId, movieId, rating) {
-    console.log('rating', rating);
     const res = await this.postResource(`/3/movie/${movieId}/rating?guest_session_id=${guestSessionId}`, rating);
     return this.transformDataGrade(res);
   }
@@ -59,7 +58,6 @@ export default class GuestSessionService {
     const res = await this.getResource(
       `/3/guest_session/${guestSessionId}/rated/movies?language=en-US&page=1&sort_by=created_at.asc`,
     );
-    console.log(res);
     return this.transformData(res);
   }
 
