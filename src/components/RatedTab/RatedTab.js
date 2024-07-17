@@ -1,17 +1,16 @@
 import { List, Typography, Layout, Image, Tooltip, Rate } from 'antd';
 import { format } from 'date-fns';
 
-import './FramesView.css';
+import './RatedTab.css';
 
-const FramesView = ({
+const RatedTab = ({
   items,
   page,
   totalItems,
   truncated,
-  name,
   onSetRating,
   onTruncateText,
-  onDataRequest,
+  onRatedMoviesRequest,
   onLoaded,
 }) => {
   const { Paragraph, Title } = Typography;
@@ -31,7 +30,7 @@ const FramesView = ({
       pagination={{
         onChange: (pageNum) => {
           onLoaded();
-          onDataRequest(name, pageNum, false);
+          onRatedMoviesRequest(pageNum);
         },
         defaultCurrent: '1',
         current: page,
@@ -87,4 +86,4 @@ const FramesView = ({
   );
 };
 
-export default FramesView;
+export default RatedTab;

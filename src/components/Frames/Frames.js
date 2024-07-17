@@ -1,7 +1,8 @@
 import { Component } from 'react';
 import { Layout, Spin, Alert, Button, Popover, Modal, Empty, Tabs, Flex } from 'antd';
 
-import FramesView from '../FramesView';
+import SearchTab from '../SearchTab';
+import RatedTab from '../RatedTab';
 import SearchBar from '../SearchBar/SearchBar';
 import NetworkState from '../NetworkState';
 import MoviesService from '../../services/Movies-service';
@@ -13,7 +14,7 @@ export default class Frames extends Component {
   guestSession = new GuestSessionService();
 
   state = {
-    items: [],
+    movies: [],
     pageSearch: null,
     pageRated: null,
     totalItemsSearch: null,
@@ -24,20 +25,24 @@ export default class Frames extends Component {
     error: false,
     errorDetail: '',
     truncated: [],
-    name: '',
+    searchQuery: '',
     ratedMovies: [],
   };
 
   componentDidMount() {
-    this.guestSession
-      .createGuestSession()
-      .then((result) => {
-        const { guestSessionId } = result;
-        console.log(guestSessionId);
-        this.guestSessionId = guestSessionId;
-      })
-      .catch(this.onError);
+    this.guestSessionId = '3c3ea2268d38f9a1053e6c1d7bc9c5d2';
   }
+
+  // componentDidMount() {
+  //   this.guestSession
+  //     .createGuestSession()
+  //     .then((result) => {
+  //       const { guestSessionId } = result;
+  //       console.log(guestSessionId);
+  //       this.guestSessionId = guestSessionId;
+  //     })
+  //     .catch(this.onError);
+  // }
 
   isTextTruncated = (text, maxLength) => {
     return text.length > maxLength;
@@ -71,29 +76,29 @@ export default class Frames extends Component {
     });
   };
 
-  DataRequest = (name, pageNum, emptyText) => {
+  DataRequest = (searchQuery, pageNum, emptyText) => {
     this.movie
-      .getMovies(name, pageNum)
+      .getMovies(searchQuery, pageNum)
       .then((result) => {
-        const { pageSearch, items, totalItemsSearch } = result;
-        const truncated = items.map((item) => this.isTextTruncated(item.overview, 100));
+        const { pageSearch, movies, totalItemsSearch } = result;
+        const truncated = movies.map((movie) => this.isTextTruncated(movie.overview, 100));
 
-        this.setState({ items, pageSearch, totalItemsSearch, truncated, name, loading: false });
+        this.setState({ movies, pageSearch, totalItemsSearch, truncated, searchQuery, loading: false });
 
-        if (items.length === 0 && !emptyText) {
-          this.setState({ empty: true, messageInfo: `No movie with the title "${name}" was found.` });
+        if (movies.length === 0 && !emptyText) {
+          this.setState({ empty: true, messageInfo: `No movie with the title "${searchQuery}" was found.` });
         }
       })
       .catch(this.onError);
   };
 
-  handleDataRequest = (name) => {
+  handleDataRequest = (searchQuery) => {
     this.handleLoaded();
 
-    if (name.movie !== '') {
-      this.DataRequest(name.movie, 1, false);
+    if (searchQuery.movie !== '') {
+      this.DataRequest(searchQuery.movie, 1, false);
     } else {
-      this.DataRequest(name.movie, 1, true);
+      this.DataRequest(searchQuery.movie, 1, true);
     }
   };
 
@@ -102,8 +107,8 @@ export default class Frames extends Component {
   };
 
   handleSetRating = (value, id) => {
-    this.setState(({ items }) => ({
-      items: items.map((el) => (el.id === id ? { ...el, rating: value } : el)),
+    this.setState(({ movies }) => ({
+      movies: movies.map((movie) => (movie.id === id ? { ...movie, rating: value } : movie)),
     }));
 
     this.guestSession
@@ -116,23 +121,26 @@ export default class Frames extends Component {
 
   handleTabClick = (key) => {
     if (key === 'rated') {
-      console.log(key, 'Click TabRated');
       this.handleLoaded();
 
-      this.guestSession
-        .getRatedMovies(this.guestSessionId)
-        .then((result) => {
-          console.log(result);
-          const { pageRated, ratedMovies, totalItemsRated } = result;
-          this.setState({ ratedMovies, pageRated, totalItemsRated, loading: false });
-        })
-        .catch(this.onError);
+      this.handleRatedMoviesRequest(1);
     }
+  };
+
+  handleRatedMoviesRequest = (pageNum) => {
+    this.guestSession
+      .getRatedMovies(this.guestSessionId, pageNum)
+      .then((result) => {
+        console.log(result);
+        const { pageRated, ratedMovies, totalItemsRated } = result;
+        this.setState({ ratedMovies, pageRated, totalItemsRated, loading: false });
+      })
+      .catch(this.onError);
   };
 
   render() {
     const {
-      items,
+      movies,
       pageSearch,
       pageRated,
       totalItemsSearch,
@@ -143,7 +151,7 @@ export default class Frames extends Component {
       truncated,
       messageInfo,
       empty,
-      name,
+      searchQuery,
       ratedMovies,
     } = this.state;
     const hasData = !(loading || error);
@@ -170,12 +178,12 @@ export default class Frames extends Component {
     const searchBar = <SearchBar onValuesChange={this.handleDataRequest} />;
 
     const frames = hasData ? (
-      <FramesView
-        items={items}
+      <SearchTab
+        movies={movies}
         page={pageSearch}
         totalItems={totalItemsSearch}
         truncated={truncated}
-        name={name}
+        searchQuery={searchQuery}
         onSetRating={this.handleSetRating}
         onTruncateText={this.truncateText}
         onDataRequest={this.DataRequest}
@@ -184,14 +192,13 @@ export default class Frames extends Component {
     ) : null;
 
     const ratedFrames = hasData ? (
-      <FramesView
+      <RatedTab
         items={ratedMovies}
         page={pageRated}
         totalItems={totalItemsRated}
         truncated={truncated}
-        name={name}
         onTruncateText={this.truncateText}
-        onDataRequest={this.DataRequest}
+        onRatedMoviesRequest={this.handleRatedMoviesRequest}
         onLoaded={this.handleLoaded}
       />
     ) : null;

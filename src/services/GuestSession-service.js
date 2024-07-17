@@ -44,19 +44,14 @@ export default class GuestSessionService {
     return this.transformDataNewSession(res);
   }
 
-  async getGenres() {
-    const res = await this.getResource('/3/genre/movie/list?language=en');
-    console.log(res);
-  }
-
   async rateMovie(guestSessionId, movieId, rating) {
     const res = await this.postResource(`/3/movie/${movieId}/rating?guest_session_id=${guestSessionId}`, rating);
     return this.transformDataGrade(res);
   }
 
-  async getRatedMovies(guestSessionId) {
+  async getRatedMovies(guestSessionId, pageNum) {
     const res = await this.getResource(
-      `/3/guest_session/${guestSessionId}/rated/movies?language=en-US&page=1&sort_by=created_at.asc`,
+      `/3/guest_session/${guestSessionId}/rated/movies?language=en-US&page=${pageNum}&sort_by=created_at.asc`,
     );
     return this.transformData(res);
   }

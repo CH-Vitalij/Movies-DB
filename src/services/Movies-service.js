@@ -1,7 +1,7 @@
 export default class MoviesService {
   _apiBase = 'https://api.themoviedb.org';
 
-  async getResource(url, title, pageNum = 1) {
+  async getResource(url) {
     const options = {
       method: 'GET',
       headers: {
@@ -10,30 +10,33 @@ export default class MoviesService {
       },
     };
 
-    const response = await fetch(
-      `${this._apiBase}${url}?query=${title}&include_adult=false&language=en-US&page=${pageNum}`,
-      options,
-    );
+    const response = await fetch(`${this._apiBase}${url}`, options);
 
     if (!response.ok) {
-      throw new Error(
-        `Could not fetch ${this._apiBase}${url}?query=${title}&include_adult=false&language=en-US&page=${pageNum}, received ${response.status}`,
-      );
+      throw new Error(`Could not fetch ${this._apiBase}${url}, received ${response.status}`);
     }
 
     return await response.json();
   }
 
-  async getMovies(title, pageNum) {
-    const res = await this.getResource('/3/search/movie', title, pageNum);
+  async getMovies(title, pageNum = 1) {
+    const res = await this.getResource(
+      `/3/search/movie?query=${title}&include_adult=false&language=en-US&page=${pageNum}`,
+    );
     console.log(res);
     return this.transformData(res);
+  }
+
+  async getGenres() {
+    const res = await this.getResource('/3/genre/movie/list?language=en');
+    console.log(res);
+    return res;
   }
 
   transformData = (data) => {
     return {
       pageSearch: data.page,
-      items: data.results,
+      movies: data.results,
       totalItemsSearch: data.total_results,
     };
   };
