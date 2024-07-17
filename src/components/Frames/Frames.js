@@ -1,22 +1,7 @@
 import { Component } from 'react';
-import {
-  List,
-  Typography,
-  Layout,
-  Image,
-  Tooltip,
-  Spin,
-  Alert,
-  Button,
-  Popover,
-  Modal,
-  Empty,
-  Tabs,
-  Flex,
-  Rate,
-} from 'antd';
-import { format } from 'date-fns';
+import { Layout, Spin, Alert, Button, Popover, Modal, Empty, Tabs, Flex } from 'antd';
 
+import FramesView from '../FramesView';
 import SearchBar from '../SearchBar/SearchBar';
 import NetworkState from '../NetworkState';
 import MoviesService from '../../services/Movies-service';
@@ -29,8 +14,10 @@ export default class Frames extends Component {
 
   state = {
     items: [],
-    page: 1,
-    totalItems: 0,
+    pageSearch: null,
+    pageRated: null,
+    totalItemsSearch: null,
+    totalItemsRated: null,
     empty: false,
     messageInfo: '',
     loading: false,
@@ -38,13 +25,8 @@ export default class Frames extends Component {
     errorDetail: '',
     truncated: [],
     name: '',
-    evaluated: false,
     ratedMovies: [],
   };
-
-  // componentDidMount() {
-  //   this.DataRequest('Harry Potter');
-  // }
 
   componentDidMount() {
     this.guestSession
@@ -57,75 +39,27 @@ export default class Frames extends Component {
       .catch(this.onError);
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    console.log('update');
-
-    if (prevState.items.length !== 0) {
-      let ratedMovieId = 0;
-      let ratedMovieIndex = 0;
-      if (
-        this.state.items.some((el, i) => {
-          ratedMovieId = el.id;
-          ratedMovieIndex = i;
-          return prevState.items[i].stars !== el.stars;
-        })
-      ) {
-        const currentRatedMovieId = ratedMovieId;
-        const currentRatedMovieIndex = ratedMovieIndex;
-
-        // this.handleLoaded();
-        this.guestSession
-          .rateMovie(this.guestSessionId, currentRatedMovieId, this.state.items[currentRatedMovieIndex].stars)
-          .then((result) => {
-            console.log(result);
-
-            this.setState(({ items }) => ({
-              items: items.map((el) => (el.id === currentRatedMovieId ? { ...el, ratedMovie: true } : el)),
-              // loading: false,
-            }));
-          })
-          .catch(this.onError);
-      }
-
-      if (
-        this.state.items.some((el, i) => {
-          ratedMovieId = el.id;
-          return prevState.items[i].ratedMovie !== el.ratedMovie;
-        })
-      ) {
-        console.log('update 2');
-        this.guestSession
-          .getRatedMovies(this.guestSessionId)
-          .then((result) => {
-            console.log(result);
-            const { page, ratedMovies, totalItems } = result;
-            this.setState({ ratedMovies, page, totalItems });
-          })
-          .catch(this.onError);
-      }
-    }
-  }
-
   isTextTruncated = (text, maxLength) => {
     return text.length > maxLength;
   };
 
   truncateText = (text, maxLength) => {
-    const arr = text.split(' ');
-    let acc = '';
-    let len = 0;
-    if (this.isTextTruncated(text, maxLength)) {
-      for (let word of arr) {
-        len += word.length;
-        if (len <= maxLength) {
-          acc += ' ' + word;
-          len += 1;
-        } else {
-          return (acc + ' ...').trim();
-        }
-      }
-    } else {
+    if (!this.isTextTruncated(text, maxLength)) {
       return text;
+    }
+
+    const words = text.split(' ');
+    let res = '';
+    let currentLength = 0;
+
+    for (let word of words) {
+      currentLength += word.length;
+      if (currentLength <= maxLength) {
+        res += ' ' + word;
+        currentLength += 1;
+      } else {
+        return (res + ' ...').trim();
+      }
     }
   };
 
@@ -141,10 +75,10 @@ export default class Frames extends Component {
     this.movie
       .getMovies(name, pageNum)
       .then((result) => {
-        const { page, items, totalItems } = result;
-        const truncated = items.map((item) => this.isTextTruncated(item.overview, 175));
+        const { pageSearch, items, totalItemsSearch } = result;
+        const truncated = items.map((item) => this.isTextTruncated(item.overview, 100));
 
-        this.setState({ items, page, totalItems, truncated, name, loading: false });
+        this.setState({ items, pageSearch, totalItemsSearch, truncated, name, loading: false });
 
         if (items.length === 0 && !emptyText) {
           this.setState({ empty: true, messageInfo: `No movie with the title "${name}" was found.` });
@@ -167,15 +101,51 @@ export default class Frames extends Component {
     this.setState({ loading: true, empty: false });
   };
 
-  handleSetStars = (value, id) => {
+  handleSetRating = (value, id) => {
     this.setState(({ items }) => ({
-      items: items.map((el) => (el.id === id ? { ...el, stars: value } : el)),
+      items: items.map((el) => (el.id === id ? { ...el, rating: value } : el)),
     }));
+
+    this.guestSession
+      .rateMovie(this.guestSessionId, id, value)
+      .then((result) => {
+        console.log(result);
+      })
+      .catch(this.onError);
+  };
+
+  handleTabClick = (key) => {
+    if (key === 'rated') {
+      console.log(key, 'Click TabRated');
+      this.handleLoaded();
+
+      this.guestSession
+        .getRatedMovies(this.guestSessionId)
+        .then((result) => {
+          console.log(result);
+          const { pageRated, ratedMovies, totalItemsRated } = result;
+          this.setState({ ratedMovies, pageRated, totalItemsRated, loading: false });
+        })
+        .catch(this.onError);
+    }
   };
 
   render() {
-    const { items, page, totalItems, loading, error, errorDetail, truncated, messageInfo, empty, name, ratedMovies } =
-      this.state;
+    const {
+      items,
+      pageSearch,
+      pageRated,
+      totalItemsSearch,
+      totalItemsRated,
+      loading,
+      error,
+      errorDetail,
+      truncated,
+      messageInfo,
+      empty,
+      name,
+      ratedMovies,
+    } = this.state;
     const hasData = !(loading || error);
 
     const errorMessage = error ? (
@@ -201,13 +171,12 @@ export default class Frames extends Component {
 
     const frames = hasData ? (
       <FramesView
-        // key="search"
         items={items}
-        page={page}
-        totalItems={totalItems}
+        page={pageSearch}
+        totalItems={totalItemsSearch}
         truncated={truncated}
         name={name}
-        onStars={this.handleSetStars}
+        onSetRating={this.handleSetRating}
         onTruncateText={this.truncateText}
         onDataRequest={this.DataRequest}
         onLoaded={this.handleLoaded}
@@ -216,13 +185,11 @@ export default class Frames extends Component {
 
     const ratedFrames = hasData ? (
       <FramesView
-        // key="rated"
         items={ratedMovies}
-        page={page}
-        totalItems={totalItems}
+        page={pageRated}
+        totalItems={totalItemsRated}
         truncated={truncated}
         name={name}
-        onStars={this.handleSetStars}
         onTruncateText={this.truncateText}
         onDataRequest={this.DataRequest}
         onLoaded={this.handleLoaded}
@@ -231,20 +198,20 @@ export default class Frames extends Component {
 
     const elements = [
       {
-        key: '1',
+        key: 'search',
         label: 'Search',
         children: (
           <Flex vertical="true" align="center">
             {errorMessage}
             {searchBar}
             {empty ? <Empty description={messageInfo} /> : null}
-            {/* {spinner} */}
+            {spinner}
             {frames}
           </Flex>
         ),
       },
       {
-        key: '2',
+        key: 'rated',
         label: 'Rated',
         children: (
           <Flex vertical="true" align="center">
@@ -258,70 +225,9 @@ export default class Frames extends Component {
     return (
       <Layout className="box">
         <NetworkState>
-          <Tabs centered items={elements} />
+          <Tabs items={elements} centered onTabClick={(key) => this.handleTabClick(key)} />
         </NetworkState>
       </Layout>
     );
   }
 }
-
-const FramesView = ({ items, page, totalItems, truncated, name, onStars, onTruncateText, onDataRequest, onLoaded }) => {
-  const { Paragraph, Title } = Typography;
-
-  return (
-    <List
-      className="movies-list"
-      itemLayout="horizontal"
-      pagination={{
-        onChange: (pageNum) => {
-          onLoaded();
-          onDataRequest(name, pageNum, false);
-        },
-        defaultCurrent: '1',
-        current: `${page}`,
-        pageSize: 20,
-        align: 'center',
-        total: totalItems,
-        hideOnSinglePage: true,
-        showSizeChanger: false,
-      }}
-      dataSource={items}
-      renderItem={(item, i) => {
-        const truncatedText = item.overview ? onTruncateText(item.overview, 175) : '-';
-        const isTruncated = truncated[i];
-        const releaseDate = item.release_date ? format(new Date(item.release_date), 'MMMM d, yyyy') : '-';
-        const pic = item.poster_path
-          ? `https://image.tmdb.org/t/p/w500/${item.poster_path}`
-          : 'https://avatars.mds.yandex.net/i?id=7750321ef5bc659110709a1f84465a7b1a208bb6-10143023-images-thumbs&n=13g';
-
-        return (
-          <List.Item key={item.id} className="movies-list__frame frame">
-            <Image className="img" width={183} alt={item.title} src={pic} />
-            <Layout style={{ width: '228px', backgroundColor: '#ffffff' }}>
-              <Title level={5} className="frame__title">
-                {item.title}
-              </Title>
-              <div style={{ paddingBottom: '7px', color: '#827E7E' }}>{releaseDate}</div>
-              <List
-                className="genres-list"
-                itemLayout="horizontal"
-                dataSource={['Action', 'Drama']}
-                renderItem={(item) => <List.Item className="genres-list__item">{item}</List.Item>}
-              />
-              <Tooltip title={isTruncated ? item.overview : null}>
-                <Paragraph className="frame__overview">{truncatedText}</Paragraph>
-              </Tooltip>
-              <Rate
-                allowHalf="true"
-                count={10}
-                className="rate"
-                value={item.stars}
-                onChange={(value) => onStars(value, item.id)}
-              />
-            </Layout>
-          </List.Item>
-        );
-      }}
-    />
-  );
-};

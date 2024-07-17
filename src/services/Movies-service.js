@@ -32,9 +32,9 @@ export default class MoviesService {
 
   transformData = (data) => {
     return {
-      page: data.page,
+      pageSearch: data.page,
       items: data.results,
-      totalItems: data.total_results,
+      totalItemsSearch: data.total_results,
     };
   };
 }

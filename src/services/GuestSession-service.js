@@ -79,9 +79,9 @@ export default class GuestSessionService {
 
   transformData = (data) => {
     return {
-      page: data.page,
+      pageRated: data.page,
       ratedMovies: data.results,
-      totalItems: data.total_results,
+      totalItemsRated: data.total_results,
     };
   };
 }
