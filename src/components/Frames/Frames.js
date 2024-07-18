@@ -33,7 +33,7 @@ export default class Frames extends Component {
   };
 
   // componentDidMount() {
-  //   this.guestSessionId = 'eef154bf5bee061ead6c0be83c1a8554';
+  //   this.guestSessionId = 'ff4442ad3717623d1cbe81dcadf850b7';
   // }
 
   componentDidMount() {
@@ -133,15 +133,22 @@ export default class Frames extends Component {
 
   handleSetRating = (value, id) => {
     console.log(value);
-    this.setState(({ movies, savedMovies }) => {
-      const updatedMovies = movies.map((movie) => (movie.id === id ? { ...movie, rating: value } : movie));
 
-      const savedMovieIndex = savedMovies.findIndex((movie) => movie.id === id);
+    this.setState(({ movies, savedMovies }) => {
+      const updatedMovies = movies.map((movie) => (movie.id === id ? { ...movie, rating: value } : movie)); // обновили рейтинг фильму
+
+      const savedMovieIndex = savedMovies.findIndex((movie) => movie.id === id); // ищем в saveMovies есть ли этот фильм
       let updatedSavedMovies;
 
+      console.log('savedMovies', savedMovies);
+
       if (savedMovieIndex !== -1) {
-        updatedSavedMovies = savedMovies.map((movie) => (movie.id === id ? { ...movie, rating: value } : movie));
+        // если есть то обновляем рейтинг
+        updatedSavedMovies = savedMovies
+          .map((movie) => (movie.id === id ? { ...movie, rating: value } : movie))
+          .filter((movie) => movie.rating > 0); // оставляем фильмы только с рейтингом > 0
       } else {
+        // если нету то добавляем с новым рейтингом
         const movieToSave = updatedMovies.find((movie) => movie.id === id);
         updatedSavedMovies = [...savedMovies, { ...movieToSave, rating: value }];
       }
@@ -152,12 +159,34 @@ export default class Frames extends Component {
       };
     });
 
-    this.guestSession
-      .rateMovie(this.guestSessionId, id, value)
-      .then((result) => {
-        console.log(result);
-      })
-      .catch(this.onError);
+    if (value > 0) {
+      this.guestSession
+        .setRatingMovie(this.guestSessionId, id, value)
+        .then((result) => {
+          console.log(result);
+        })
+        .catch(this.onError);
+    } else {
+      this.handleLoaded();
+      this.guestSession
+        .resetRatingMovie(this.guestSessionId, id)
+        .then((result) => {
+          console.log(result);
+          console.log('savedMovies', this.state.savedMovies);
+          this.setState(
+            ({ ratedMovies }) => ({
+              ratedMovies: ratedMovies.filter((movie) => movie.id !== id),
+              loading: false,
+            }),
+            () => {
+              if (this.state.ratedMovies.length === 0) {
+                this.setState({ messageInfo: 'No Data', empty: true, loading: false });
+              }
+            },
+          );
+        })
+        .catch(this.onError);
+    }
   };
 
   handleTabClick = (key) => {
@@ -165,7 +194,7 @@ export default class Frames extends Component {
       if (this.state.savedMovies.length !== 0) {
         this.handleRatedMoviesRequest(1);
       } else {
-        this.setState({ messageInfo: 'No Data', empty: true });
+        this.setState({ ratedMovies: [], messageInfo: 'No Data', empty: true }); //
       }
     } else if (key === 'search') {
       this.setState({ messageInfo: '', empty: false });
@@ -178,6 +207,7 @@ export default class Frames extends Component {
       .getRatedMovies(this.guestSessionId, pageNum)
       .then((result) => {
         const { pageRated, ratedMovies, totalMoviesRated, totalPagesRated } = result;
+        console.log('ratedMovies', ratedMovies);
         this.setState({ ratedMovies, pageRated, totalMoviesRated, totalPagesRated, loading: false });
       })
       .catch(this.onError);
@@ -212,6 +242,7 @@ export default class Frames extends Component {
       searchQuery,
       ratedMovies,
     } = this.state;
+
     const hasData = !(loading || error);
 
     const errorMessage = error ? (
@@ -258,6 +289,7 @@ export default class Frames extends Component {
         totalMovies={totalMoviesRated}
         truncated={truncated}
         onTruncateText={this.truncateText}
+        onSetRating={this.handleSetRating}
         onRatedMoviesRequest={this.handleRatedMoviesRequest}
         onLoaded={this.handleLoaded}
         onGetColor={this.handleColor}

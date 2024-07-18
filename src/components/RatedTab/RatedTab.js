@@ -10,6 +10,7 @@ const RatedTab = ({
   totalMovies,
   truncated,
   onTruncateText,
+  onSetRating,
   onRatedMoviesRequest,
   onLoaded,
   onGetColor,
@@ -73,7 +74,13 @@ const RatedTab = ({
                     <Tooltip title={isTruncated ? movie.overview : null}>
                       <Paragraph className="frame__overview">{truncatedText}</Paragraph>
                     </Tooltip>
-                    <Rate allowHalf="true" count={10} className="rate" value={movie.rating} />
+                    <Rate
+                      allowHalf="true"
+                      count={10}
+                      className="rate"
+                      value={movie.rating}
+                      onChange={(value) => onSetRating(value, movie.id)}
+                    />
                   </Layout>
                 </List.Item>
               );

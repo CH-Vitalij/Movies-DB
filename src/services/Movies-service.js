@@ -35,7 +35,7 @@ export default class MoviesService {
   transformData = (data) => {
     return {
       pageSearch: data.page,
-      movies: data.results.map((movie) => ({ ...movie, rating: null })),
+      movies: data.results.map((movie) => ({ ...movie, rating: 0 })),
       totalMoviesSearch: data.total_results,
       totalPagesSearch: data.total_pages,
     };

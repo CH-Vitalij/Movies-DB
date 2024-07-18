@@ -1,34 +1,23 @@
 export default class GuestSessionService {
   _apiBase = 'https://api.themoviedb.org';
 
-  async getResource(url) {
+  async fetchResource(url, method = 'GET', body = null) {
     const options = {
-      method: 'GET',
+      method,
       headers: {
         Accept: 'application/json',
         Authorization: `Bearer ${process.env.REACT_APP_API_TOKEN}`,
       },
     };
 
-    const response = await fetch(`${this._apiBase}${url}`, options);
-
-    if (!response.ok) {
-      throw new Error(`Could not fetch ${this._apiBase}${url}, received ${response.status}`);
+    switch (method) {
+      case 'POST':
+        options.headers['Content-Type'] = 'application/json;charset=utf-8';
+        options.body = JSON.stringify(body);
+        break;
+      case 'DELETE':
+        options.headers['Content-Type'] = 'application/json;charset=utf-8';
     }
-
-    return await response.json();
-  }
-
-  async postResource(url, rating) {
-    const options = {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json;charset=utf-8',
-        Authorization: `Bearer ${process.env.REACT_APP_API_TOKEN}`,
-      },
-      body: JSON.stringify({ value: rating }),
-    };
 
     const response = await fetch(`${this._apiBase}${url}`, options);
 
@@ -40,19 +29,27 @@ export default class GuestSessionService {
   }
 
   async createGuestSession() {
-    const res = await this.getResource('/3/authentication/guest_session/new');
+    const res = await this.fetchResource('/3/authentication/guest_session/new');
     return this.transformDataNewSession(res);
   }
 
-  async rateMovie(guestSessionId, movieId, rating) {
-    const res = await this.postResource(`/3/movie/${movieId}/rating?guest_session_id=${guestSessionId}`, rating);
+  async setRatingMovie(guestSessionId, movieId, rating) {
+    const res = await this.fetchResource(`/3/movie/${movieId}/rating?guest_session_id=${guestSessionId}`, 'POST', {
+      value: rating,
+    });
+    return this.transformDataGrade(res);
+  }
+
+  async resetRatingMovie(guestSessionId, movieId) {
+    const res = await this.fetchResource(`/3/movie/${movieId}/rating?guest_session_id=${guestSessionId}`, 'DELETE');
     return this.transformDataGrade(res);
   }
 
   async getRatedMovies(guestSessionId, pageNum) {
-    const res = await this.getResource(
+    const res = await this.fetchResource(
       `/3/guest_session/${guestSessionId}/rated/movies?language=en-US&page=${pageNum}&sort_by=created_at.asc`,
     );
+    console.log(res);
     return this.transformData(res);
   }
 
