@@ -26,13 +26,13 @@ const SearchTab = ({
   };
 
   const getGenres = (genres, genreId) => {
-    const genre = genres.genres.find((el) => el.id === genreId);
+    const genre = genres.find((el) => el.id === genreId);
     return genre ? genre.name : 'Genre not specified';
   };
 
   return (
     <GenresConsumer>
-      {(genres) => {
+      {({ genres }) => {
         return (
           <List
             className="movies-list"
