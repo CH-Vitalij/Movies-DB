@@ -23,21 +23,20 @@ export default class MoviesService {
     const res = await this.getResource(
       `/3/search/movie?query=${title}&include_adult=false&language=en-US&page=${pageNum}`,
     );
-    console.log(res);
     return this.transformData(res);
   }
 
   async getGenres() {
     const res = await this.getResource('/3/genre/movie/list?language=en');
-    console.log(res);
     return res;
   }
 
   transformData = (data) => {
     return {
       pageSearch: data.page,
-      movies: data.results,
-      totalItemsSearch: data.total_results,
+      movies: data.results.map((movie) => ({ ...movie, rating: null })),
+      totalMoviesSearch: data.total_results,
+      totalPagesSearch: data.total_pages,
     };
   };
 }

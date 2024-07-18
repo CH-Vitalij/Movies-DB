@@ -76,7 +76,8 @@ export default class GuestSessionService {
     return {
       pageRated: data.page,
       ratedMovies: data.results,
-      totalItemsRated: data.total_results,
+      totalMoviesRated: data.total_results,
+      totalPagesRated: data.total_pages,
     };
   };
 }

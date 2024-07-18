@@ -7,23 +7,16 @@ import { GenresConsumer } from '../GenresContext';
 const SearchTab = ({
   movies,
   page,
-  totalItems,
+  totalMovies,
   truncated,
   searchQuery,
   onSetRating,
   onTruncateText,
   onDataRequest,
   onLoaded,
+  onGetColor,
 }) => {
   const { Paragraph, Title } = Typography;
-
-  const getColor = (voteAverage) => {
-    const average = +voteAverage.toFixed(1);
-    if (average <= 3) return '#E90000';
-    if (average <= 5) return '#E97E00';
-    if (average <= 7) return '#E9D100';
-    return '#66E900';
-  };
 
   const getGenres = (genres, genreId) => {
     const genre = genres.find((el) => el.id === genreId);
@@ -46,7 +39,7 @@ const SearchTab = ({
               current: page,
               pageSize: 20,
               align: 'center',
-              total: totalItems,
+              total: totalMovies,
               hideOnSinglePage: true,
               showSizeChanger: false,
             }}
@@ -69,7 +62,7 @@ const SearchTab = ({
                       <Title level={5} className="frame__title">
                         {movie.title}
                       </Title>
-                      <div className="rating" style={{ borderColor: `${getColor(+movie.vote_average.toFixed(1))}` }}>
+                      <div className="rating" style={{ borderColor: `${onGetColor(+movie.vote_average.toFixed(1))}` }}>
                         <span className="rating__text">{movie.vote_average.toFixed(1)}</span>
                       </div>
                     </div>

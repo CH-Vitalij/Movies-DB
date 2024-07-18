@@ -17,8 +17,10 @@ export default class Frames extends Component {
     movies: [],
     pageSearch: null,
     pageRated: null,
-    totalItemsSearch: null,
-    totalItemsRated: null,
+    totalMoviesSearch: null,
+    totalMoviesRated: null,
+    totalPagesRated: null,
+    totalPagesSearch: null,
     empty: false,
     messageInfo: '',
     loading: false,
@@ -27,22 +29,23 @@ export default class Frames extends Component {
     truncated: [],
     searchQuery: '',
     ratedMovies: [],
+    savedMovies: [],
   };
 
-  componentDidMount() {
-    this.guestSessionId = '3c3ea2268d38f9a1053e6c1d7bc9c5d2';
-  }
-
   // componentDidMount() {
-  //   this.guestSession
-  //     .createGuestSession()
-  //     .then((result) => {
-  //       const { guestSessionId } = result;
-  //       console.log(guestSessionId);
-  //       this.guestSessionId = guestSessionId;
-  //     })
-  //     .catch(this.onError);
+  //   this.guestSessionId = '3b5403624f7fafc948a6bfac57c22ce7';
   // }
+
+  componentDidMount() {
+    this.guestSession
+      .createGuestSession()
+      .then((result) => {
+        const { guestSessionId } = result;
+        console.log(guestSessionId);
+        this.guestSessionId = guestSessionId;
+      })
+      .catch(this.onError);
+  }
 
   isTextTruncated = (text, maxLength) => {
     return text.length > maxLength;
@@ -77,24 +80,46 @@ export default class Frames extends Component {
   };
 
   DataRequest = (searchQuery, pageNum, emptyText) => {
-    this.movie
-      .getMovies(searchQuery, pageNum)
-      .then((result) => {
-        const { pageSearch, movies, totalItemsSearch } = result;
-        const truncated = movies.map((movie) => this.isTextTruncated(movie.overview, 100));
+    this.handleLoaded();
 
-        this.setState({ movies, pageSearch, totalItemsSearch, truncated, searchQuery, loading: false });
+    this.movie.getMovies(searchQuery, pageNum).then((result) => {
+      const { pageSearch, movies, totalMoviesSearch, totalPagesSearch } = result;
+      const truncated = movies.map((movie) => this.isTextTruncated(movie.overview, 100));
+      const searchResults = {
+        pageSearch,
+        totalMoviesSearch,
+        totalPagesSearch,
+        truncated,
+        searchQuery,
+        empty: movies.length === 0 && !emptyText,
+        messageInfo: movies.length === 0 && !emptyText ? `No movie with the title "${searchQuery}" was found.` : '',
+        loading: false,
+      };
 
-        if (movies.length === 0 && !emptyText) {
-          this.setState({ empty: true, messageInfo: `No movie with the title "${searchQuery}" was found.` });
-        }
-      })
-      .catch(this.onError);
+      const { savedMovies } = this.state;
+
+      if (savedMovies.length !== 0) {
+        console.log(true);
+        console.log(savedMovies);
+        const moviesWithRating = movies.map((movie) => {
+          const ratedMovie = savedMovies.find((rm) => rm.id === movie.id);
+          return ratedMovie ? { ...movie, rating: ratedMovie.rating } : movie;
+        });
+
+        this.setState({
+          ...searchResults,
+          movies: moviesWithRating,
+        });
+      } else {
+        this.setState({
+          ...searchResults,
+          movies,
+        });
+      }
+    });
   };
 
   handleDataRequest = (searchQuery) => {
-    this.handleLoaded();
-
     if (searchQuery.movie !== '') {
       this.DataRequest(searchQuery.movie, 1, false);
     } else {
@@ -107,9 +132,24 @@ export default class Frames extends Component {
   };
 
   handleSetRating = (value, id) => {
-    this.setState(({ movies }) => ({
-      movies: movies.map((movie) => (movie.id === id ? { ...movie, rating: value } : movie)),
-    }));
+    this.setState(({ movies, savedMovies }) => {
+      const updatedMovies = movies.map((movie) => (movie.id === id ? { ...movie, rating: value } : movie));
+
+      const savedMovieIndex = savedMovies.findIndex((movie) => movie.id === id);
+      let updatedSavedMovies;
+
+      if (savedMovieIndex !== -1) {
+        updatedSavedMovies = savedMovies.map((movie) => (movie.id === id ? { ...movie, rating: value } : movie));
+      } else {
+        const movieToSave = updatedMovies.find((movie) => movie.id === id);
+        updatedSavedMovies = [...savedMovies, { ...movieToSave, rating: value }];
+      }
+
+      return {
+        movies: updatedMovies,
+        savedMovies: updatedSavedMovies,
+      };
+    });
 
     this.guestSession
       .rateMovie(this.guestSessionId, id, value)
@@ -131,11 +171,18 @@ export default class Frames extends Component {
     this.guestSession
       .getRatedMovies(this.guestSessionId, pageNum)
       .then((result) => {
-        console.log(result);
-        const { pageRated, ratedMovies, totalItemsRated } = result;
-        this.setState({ ratedMovies, pageRated, totalItemsRated, loading: false });
+        const { pageRated, ratedMovies, totalMoviesRated, totalPagesRated } = result;
+        this.setState({ ratedMovies, pageRated, totalMoviesRated, totalPagesRated, loading: false });
       })
       .catch(this.onError);
+  };
+
+  handleColor = (voteAverage) => {
+    const average = +voteAverage.toFixed(1);
+    if (average <= 3) return '#E90000';
+    if (average <= 5) return '#E97E00';
+    if (average <= 7) return '#E9D100';
+    return '#66E900';
   };
 
   render() {
@@ -143,8 +190,8 @@ export default class Frames extends Component {
       movies,
       pageSearch,
       pageRated,
-      totalItemsSearch,
-      totalItemsRated,
+      totalMoviesSearch,
+      totalMoviesRated,
       loading,
       error,
       errorDetail,
@@ -154,6 +201,7 @@ export default class Frames extends Component {
       searchQuery,
       ratedMovies,
     } = this.state;
+    console.log(movies);
     const hasData = !(loading || error);
 
     const errorMessage = error ? (
@@ -181,25 +229,27 @@ export default class Frames extends Component {
       <SearchTab
         movies={movies}
         page={pageSearch}
-        totalItems={totalItemsSearch}
+        totalMovies={totalMoviesSearch}
         truncated={truncated}
         searchQuery={searchQuery}
         onSetRating={this.handleSetRating}
         onTruncateText={this.truncateText}
         onDataRequest={this.DataRequest}
         onLoaded={this.handleLoaded}
+        onGetColor={this.handleColor}
       />
     ) : null;
 
     const ratedFrames = hasData ? (
       <RatedTab
-        items={ratedMovies}
+        movies={ratedMovies}
         page={pageRated}
-        totalItems={totalItemsRated}
+        totalMovies={totalMoviesRated}
         truncated={truncated}
         onTruncateText={this.truncateText}
         onRatedMoviesRequest={this.handleRatedMoviesRequest}
         onLoaded={this.handleLoaded}
+        onGetColor={this.handleColor}
       />
     ) : null;
 

@@ -1,7 +1,6 @@
 import { Flex } from 'antd';
 import { Component } from 'react';
 
-import MoviesService from '../../services/Movies-service';
 import Frames from '../Frames';
 import { GenresProvider } from '../GenresContext';
 
