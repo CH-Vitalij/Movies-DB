@@ -1,7 +1,7 @@
 import { List, Typography, Layout, Image, Tooltip, Rate } from 'antd';
 import { format } from 'date-fns';
 
-import './SearchTab.css';
+// import './SearchTab.css';
 import { GenresConsumer } from '../GenresContext';
 
 const SearchTab = ({
@@ -15,13 +15,9 @@ const SearchTab = ({
   onDataRequest,
   onLoaded,
   onGetColor,
+  onGetGenres,
 }) => {
   const { Paragraph, Title } = Typography;
-
-  const getGenres = (genres, genreId) => {
-    const genre = genres.find((el) => el.id === genreId);
-    return genre ? genre.name : 'Genre not specified';
-  };
 
   return (
     <GenresConsumer>
@@ -73,7 +69,7 @@ const SearchTab = ({
                       dataSource={movie.genre_ids.length > 0 ? movie.genre_ids : ['no-genre']}
                       renderItem={(genreId) => (
                         <List.Item key={movie.genre_ids} className="genres-list__item">
-                          {getGenres(genres, genreId)}
+                          {onGetGenres(genres, genreId)}
                         </List.Item>
                       )}
                     />

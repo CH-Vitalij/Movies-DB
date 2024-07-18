@@ -1,7 +1,7 @@
 import { List, Typography, Layout, Image, Tooltip, Rate } from 'antd';
 import { format } from 'date-fns';
 
-import './RatedTab.css';
+// import './Frames.css';
 import { GenresConsumer } from '../GenresContext';
 
 const RatedTab = ({
@@ -13,18 +13,15 @@ const RatedTab = ({
   onRatedMoviesRequest,
   onLoaded,
   onGetColor,
+  onGetGenres,
 }) => {
   const { Paragraph, Title } = Typography;
-
-  const getGenres = (genres, genreId) => {
-    const genre = genres.find((el) => el.id === genreId);
-    return genre ? genre.name : 'Genre not specified';
-  };
 
   return (
     <List
       className="movies-list"
       itemLayout="horizontal"
+      locale={{ emptyText: 'No Data' }}
       pagination={{
         onChange: (pageNum) => {
           onLoaded();
@@ -69,7 +66,7 @@ const RatedTab = ({
                       dataSource={movie.genre_ids.length > 0 ? movie.genre_ids : ['no-genre']}
                       renderItem={(genreId) => (
                         <List.Item key={movie.genre_ids} className="genres-list__item">
-                          {getGenres(genres, genreId)}
+                          {onGetGenres(genres, genreId)}
                         </List.Item>
                       )}
                     />

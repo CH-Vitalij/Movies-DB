@@ -33,7 +33,7 @@ export default class Frames extends Component {
   };
 
   // componentDidMount() {
-  //   this.guestSessionId = '3b5403624f7fafc948a6bfac57c22ce7';
+  //   this.guestSessionId = 'eef154bf5bee061ead6c0be83c1a8554';
   // }
 
   componentDidMount() {
@@ -132,6 +132,7 @@ export default class Frames extends Component {
   };
 
   handleSetRating = (value, id) => {
+    console.log(value);
     this.setState(({ movies, savedMovies }) => {
       const updatedMovies = movies.map((movie) => (movie.id === id ? { ...movie, rating: value } : movie));
 
@@ -161,13 +162,18 @@ export default class Frames extends Component {
 
   handleTabClick = (key) => {
     if (key === 'rated') {
-      this.handleLoaded();
-
-      this.handleRatedMoviesRequest(1);
+      if (this.state.savedMovies.length !== 0) {
+        this.handleRatedMoviesRequest(1);
+      } else {
+        this.setState({ messageInfo: 'No Data', empty: true });
+      }
+    } else if (key === 'search') {
+      this.setState({ messageInfo: '', empty: false });
     }
   };
 
   handleRatedMoviesRequest = (pageNum) => {
+    this.handleLoaded();
     this.guestSession
       .getRatedMovies(this.guestSessionId, pageNum)
       .then((result) => {
@@ -183,6 +189,11 @@ export default class Frames extends Component {
     if (average <= 5) return '#E97E00';
     if (average <= 7) return '#E9D100';
     return '#66E900';
+  };
+
+  handleGenres = (genres, genreId) => {
+    const genre = genres.find((el) => el.id === genreId);
+    return genre ? genre.name : 'Genre not specified';
   };
 
   render() {
@@ -201,7 +212,6 @@ export default class Frames extends Component {
       searchQuery,
       ratedMovies,
     } = this.state;
-    console.log(movies);
     const hasData = !(loading || error);
 
     const errorMessage = error ? (
@@ -237,6 +247,7 @@ export default class Frames extends Component {
         onDataRequest={this.DataRequest}
         onLoaded={this.handleLoaded}
         onGetColor={this.handleColor}
+        onGetGenres={this.handleGenres}
       />
     ) : null;
 
@@ -250,6 +261,7 @@ export default class Frames extends Component {
         onRatedMoviesRequest={this.handleRatedMoviesRequest}
         onLoaded={this.handleLoaded}
         onGetColor={this.handleColor}
+        onGetGenres={this.handleGenres}
       />
     ) : null;
 
@@ -272,6 +284,8 @@ export default class Frames extends Component {
         label: 'Rated',
         children: (
           <Flex vertical="true" align="center">
+            {errorMessage}
+            {empty ? <Empty description={messageInfo} /> : null}
             {ratedFrames}
             {spinner}
           </Flex>
