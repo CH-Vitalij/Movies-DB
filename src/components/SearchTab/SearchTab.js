@@ -26,6 +26,7 @@ const SearchTab = ({
           <List
             className="movies-list"
             itemLayout="horizontal"
+            locale={{ emptyText: ' ' }}
             pagination={{
               onChange: (pageNum) => {
                 onLoaded();

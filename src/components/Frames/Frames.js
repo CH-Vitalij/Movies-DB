@@ -30,22 +30,24 @@ export default class Frames extends Component {
     searchQuery: '',
     ratedMovies: [],
     savedMovies: [],
+    wasRated: false,
+    isActiveRatedTab: true,
   };
 
-  // componentDidMount() {
-  //   this.guestSessionId = 'ff4442ad3717623d1cbe81dcadf850b7';
-  // }
-
   componentDidMount() {
-    this.guestSession
-      .createGuestSession()
-      .then((result) => {
-        const { guestSessionId } = result;
-        console.log(guestSessionId);
-        this.guestSessionId = guestSessionId;
-      })
-      .catch(this.onError);
+    this.guestSessionId = '93772694287c825c08df853ec6517c98';
   }
+
+  // componentDidMount() {
+  //   this.guestSession
+  //     .createGuestSession()
+  //     .then((result) => {
+  //       const { guestSessionId } = result;
+  //       console.log(guestSessionId);
+  //       this.guestSessionId = guestSessionId;
+  //     })
+  //     .catch(this.onError);
+  // }
 
   isTextTruncated = (text, maxLength) => {
     return text.length > maxLength;
@@ -99,8 +101,6 @@ export default class Frames extends Component {
       const { savedMovies } = this.state;
 
       if (savedMovies.length !== 0) {
-        console.log(true);
-        console.log(savedMovies);
         const moviesWithRating = movies.map((movie) => {
           const ratedMovie = savedMovies.find((rm) => rm.id === movie.id);
           return ratedMovie ? { ...movie, rating: ratedMovie.rating } : movie;
@@ -127,77 +127,78 @@ export default class Frames extends Component {
     }
   };
 
-  handleLoaded = () => {
-    this.setState({ loading: true, empty: false });
+  handleLoaded = (isActiveRatedTab = true) => {
+    this.setState({ loading: true, empty: false, isActiveRatedTab });
   };
 
-  handleSetRating = (value, id) => {
-    console.log(value);
+  componentDidUpdate() {
+    console.log('Update');
+  }
 
-    this.setState(({ movies, savedMovies }) => {
-      const updatedMovies = movies.map((movie) => (movie.id === id ? { ...movie, rating: value } : movie)); // обновили рейтинг фильму
-
-      const savedMovieIndex = savedMovies.findIndex((movie) => movie.id === id); // ищем в saveMovies есть ли этот фильм
-      let updatedSavedMovies;
-
-      console.log('savedMovies', savedMovies);
-
-      if (savedMovieIndex !== -1) {
-        // если есть то обновляем рейтинг
-        updatedSavedMovies = savedMovies
-          .map((movie) => (movie.id === id ? { ...movie, rating: value } : movie))
-          .filter((movie) => movie.rating > 0); // оставляем фильмы только с рейтингом > 0
-      } else {
-        // если нету то добавляем с новым рейтингом
-        const movieToSave = updatedMovies.find((movie) => movie.id === id);
-        updatedSavedMovies = [...savedMovies, { ...movieToSave, rating: value }];
-      }
-
-      return {
-        movies: updatedMovies,
-        savedMovies: updatedSavedMovies,
-      };
-    });
-
-    if (value > 0) {
+  handleSetRating = (rating, id) => {
+    if (rating > 0) {
+      this.handleLoaded(false);
       this.guestSession
-        .setRatingMovie(this.guestSessionId, id, value)
+        .setRatingMovie(this.guestSessionId, id, rating)
         .then((result) => {
-          console.log(result);
+          if (result.success) {
+            this.setState({ wasRated: true, loading: false, isActiveRatedTab: true });
+            this.updateRatingMovies(rating, id);
+          }
         })
         .catch(this.onError);
     } else {
-      this.handleLoaded();
+      this.handleLoaded(false);
       this.guestSession
         .resetRatingMovie(this.guestSessionId, id)
         .then((result) => {
-          console.log(result);
-          console.log('savedMovies', this.state.savedMovies);
-          this.setState(
-            ({ ratedMovies }) => ({
-              ratedMovies: ratedMovies.filter((movie) => movie.id !== id),
-              loading: false,
-            }),
-            () => {
-              if (this.state.ratedMovies.length === 0) {
-                this.setState({ messageInfo: 'No Data', empty: true, loading: false });
+          if (result.success) {
+            this.updateRatingMovies(rating, id);
+            this.setState({ loading: false, isActiveRatedTab: true }, () => {
+              if (this.state.ratedMovies.length > 0) {
+                this.handleRatedMoviesRequest(1);
               }
-            },
-          );
+            });
+          }
         })
         .catch(this.onError);
     }
   };
 
+  updateRatingMovies = (rating, id) => {
+    this.setState(({ movies, savedMovies, ratedMovies }) => {
+      const updatedMovies = movies.map((movie) => (movie.id === id ? { ...movie, rating } : movie));
+
+      const savedMovieIndex = savedMovies.findIndex((movie) => movie.id === id);
+      let updatedSavedMovies;
+      let updatedRatedMovies;
+
+      if (savedMovieIndex !== -1) {
+        updatedSavedMovies = savedMovies
+          .map((movie) => (movie.id === id ? { ...movie, rating } : movie))
+          .filter((movie) => movie.rating > 0);
+
+        updatedRatedMovies = ratedMovies
+          .map((movie) => (movie.id === id ? { ...movie, rating } : movie))
+          .filter((movie) => movie.rating > 0);
+      } else {
+        const movieToSave = updatedMovies.find((movie) => movie.id === id);
+        updatedSavedMovies = [...savedMovies, { ...movieToSave, rating }];
+      }
+
+      return {
+        movies: updatedMovies,
+        savedMovies: updatedSavedMovies,
+        ratedMovies: updatedRatedMovies,
+      };
+    });
+  };
+
   handleTabClick = (key) => {
     if (key === 'rated') {
-      if (this.state.savedMovies.length !== 0) {
+      if (this.state.savedMovies.length !== 0 && this.state.wasRated) {
         this.handleRatedMoviesRequest(1);
-      } else {
-        this.setState({ ratedMovies: [], messageInfo: 'No Data', empty: true }); //
       }
-    } else if (key === 'search') {
-      this.setState({ messageInfo: '', empty: false });
     }
   };
 
@@ -207,8 +208,7 @@ export default class Frames extends Component {
       .getRatedMovies(this.guestSessionId, pageNum)
       .then((result) => {
         const { pageRated, ratedMovies, totalMoviesRated, totalPagesRated } = result;
-        console.log('ratedMovies', ratedMovies);
-        this.setState({ ratedMovies, pageRated, totalMoviesRated, totalPagesRated, loading: false });
+        this.setState({ ratedMovies, pageRated, totalMoviesRated, totalPagesRated, loading: false, wasRated: false });
       })
       .catch(this.onError);
   };
@@ -241,6 +241,7 @@ export default class Frames extends Component {
       empty,
       searchQuery,
       ratedMovies,
+      isActiveRatedTab,
     } = this.state;
 
     const hasData = !(loading || error);
@@ -314,12 +315,13 @@ export default class Frames extends Component {
       {
         key: 'rated',
         label: 'Rated',
+        disabled: isActiveRatedTab ? false : true,
         children: (
           <Flex vertical="true" align="center">
             {errorMessage}
             {empty ? <Empty description={messageInfo} /> : null}
-            {ratedFrames}
             {spinner}
+            {ratedFrames}
           </Flex>
         ),
       },
