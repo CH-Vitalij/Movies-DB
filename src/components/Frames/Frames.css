@@ -2,29 +2,49 @@
   display: flex;
   align-items: center;
   flex: none;
-  background-color: #ffffff;
-  width: 1010px;
+  background-color: #aa6969;
+  width: 420px;
   min-height: 100vh;
-  padding: 36px;
+  /* padding: 32px 36px 17px */
+}
+
+@media (min-width: 992px) {
+  .box {
+    display: flex;
+    align-items: center;
+    flex: none;
+    background-color: #ffffff;
+    width: 1010px;
+    min-height: 100vh;
+    padding: 32px 36px 17px
+  }
 }
 
 .movies-list .ant-list-items {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  width: 1010px;
-  gap: 34px 36px;
-  margin-top: 21px;
-  margin-bottom: 36px;
+  flex-wrap: nowrap;
+  flex-direction: column;
+  align-items: center;
+  min-width: 420px;
+}
+
+@media (min-width: 992px) {
+  .movies-list .ant-list-items {
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: center;
+    width: 1010px;
+    gap: 34px 36px;
+    margin-top: 21px;
+    margin-bottom: 36px;
+    min-width: auto;
+  }
 }
 
 .movies-list .ant-list-pagination {
   margin-block-start: 0;
 }
-
-/* .movies-list .ant-list-empty-text {
-  display: none;
-} */
 
 .ant-list-item.movies-list__frame {
   align-items: stretch;
@@ -33,17 +53,43 @@
   padding: 0;
   border-block-end: none;
   flex: 0 1 451px;
-  height: 281px;
+  max-height: 281px;
+}
+
+@media (min-width: 992px) {
+  .ant-list-item.movies-list__frame {
+    align-items: stretch;
+    gap: 20px;
+    box-shadow: 0px 4px 12px 0px #00000026;
+    padding: 0;
+    border-block-end: none;
+    flex: 0 1 451px;
+    max-height: 281px;
+  }
 }
 
 .img.ant-image-img {
   background-color: grey;
 }
 
+@media (min-width: 992px) {
+  .img.ant-image-img {
+    background-color: grey;
+  }
+}
+
 .title {
   display: flex;
   flex-wrap: nowrap;
   gap: 77px;
+}
+
+@media (min-width: 992px) {
+  .title {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 77px;
+  }
 }
 
 .ant-typography.frame__title {
@@ -58,6 +104,11 @@
   margin-bottom: 7px;
   width: 132px;
 }
+
+/* .layout1 {
+  flex: initial;
+  flex-direction: row;
+} */
 
 .rating {
   display: inline-block;

@@ -1,7 +1,6 @@
 import { List, Typography, Layout, Image, Tooltip, Rate } from 'antd';
 import { format } from 'date-fns';
 
-// import './Frames.css';
 import { GenresConsumer } from '../GenresContext';
 
 const RatedTab = ({

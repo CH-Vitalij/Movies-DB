@@ -33,20 +33,21 @@ export default class Frames extends Component {
     isActiveRatedTab: true,
   };
 
-  // componentDidMount() {
-  //   this.guestSessionId = '93772694287c825c08df853ec6517c98';
-  // }
-
   componentDidMount() {
-    this.guestSession
-      .createGuestSession()
-      .then((result) => {
-        const { guestSessionId } = result;
-        console.log(guestSessionId);
-        this.guestSessionId = guestSessionId;
-      })
-      .catch(this.onError);
+    // this.guestSessionId = '72403cc5766c7c78432f8f86b19097cb';
+    this.DataRequest('the way back');
   }
+
+  // componentDidMount() {
+  //   this.guestSession
+  //     .createGuestSession()
+  //     .then((result) => {
+  //       const { guestSessionId } = result;
+  //       console.log(guestSessionId);
+  //       this.guestSessionId = guestSessionId;
+  //     })
+  //     .catch(this.onError);
+  // }
 
   isTextTruncated = (text, maxLength) => {
     return text.length > maxLength;
@@ -254,7 +255,7 @@ export default class Frames extends Component {
 
     const spinner = loading ? <Spin size="large" /> : null;
 
-    const searchBar = <SearchBar onValuesChange={this.handleDataRequest} />;
+    // const searchBar = <SearchBar onValuesChange={this.handleDataRequest} />;
 
     const frames = hasData ? (
       <SearchTab
@@ -294,7 +295,7 @@ export default class Frames extends Component {
         children: (
           <Flex vertical="true" align="center">
             {errorMessage}
-            {searchBar}
+            {/* {searchBar} */}
             {empty ? <Empty description={messageInfo} /> : null}
             {spinner}
             {frames}

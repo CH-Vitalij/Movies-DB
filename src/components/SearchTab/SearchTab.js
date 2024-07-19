@@ -1,7 +1,6 @@
 import { List, Typography, Layout, Image, Tooltip, Rate } from 'antd';
 import { format } from 'date-fns';
 
-// import './SearchTab.css';
 import { GenresConsumer } from '../GenresContext';
 
 const SearchTab = ({
@@ -53,7 +52,19 @@ const SearchTab = ({
 
               return (
                 <List.Item key={movie.id} className="movies-list__frame frame">
-                  <Image className="img" width={183} height={281} alt={movie.title} src={pic} />
+                  <Layout className="layout1">
+                    <Image className="img" width={60} height={91} alt={movie.title} src={pic} />
+                    <div className="title">
+                      <Title level={5} className="frame__title">
+                        {movie.title}
+                      </Title>
+                      <div className="rating" style={{ borderColor: `${onGetColor(+movie.vote_average.toFixed(1))}` }}>
+                        <span className="rating__text">{movie.vote_average.toFixed(1)}</span>
+                      </div>
+                    </div>
+                    <div style={{ marginBottom: '7px', color: '#827E7E' }}>{releaseDate}</div>
+                  </Layout>
+                  {/* <Image className="img" width={183} height={281} alt={movie.title} src={pic} />
                   <Layout style={{ width: '228px', backgroundColor: '#ffffff' }}>
                     <div className="title">
                       <Title level={5} className="frame__title">
@@ -84,7 +95,7 @@ const SearchTab = ({
                       value={movie.rating}
                       onChange={(value) => onSetRating(value, movie.id)}
                     />
-                  </Layout>
+                  </Layout> */}
                 </List.Item>
               );
             }}

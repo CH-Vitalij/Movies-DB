@@ -23,7 +23,6 @@ export default class MoviesService {
     const res = await this.getResource(
       `/3/search/movie?query=${title}&include_adult=false&language=en-US&page=${pageNum}`,
     );
-    console.log(res);
     return this.transformData(res);
   }
 
