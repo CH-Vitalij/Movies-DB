@@ -29,25 +29,24 @@ export default class Frames extends Component {
     truncated: [],
     searchQuery: '',
     ratedMovies: [],
-    savedMovies: [],
     wasRated: false,
     isActiveRatedTab: true,
   };
 
-  componentDidMount() {
-    this.guestSessionId = '93772694287c825c08df853ec6517c98';
-  }
-
   // componentDidMount() {
-  //   this.guestSession
-  //     .createGuestSession()
-  //     .then((result) => {
-  //       const { guestSessionId } = result;
-  //       console.log(guestSessionId);
-  //       this.guestSessionId = guestSessionId;
-  //     })
-  //     .catch(this.onError);
+  //   this.guestSessionId = '93772694287c825c08df853ec6517c98';
   // }
+
+  componentDidMount() {
+    this.guestSession
+      .createGuestSession()
+      .then((result) => {
+        const { guestSessionId } = result;
+        console.log(guestSessionId);
+        this.guestSessionId = guestSessionId;
+      })
+      .catch(this.onError);
+  }
 
   isTextTruncated = (text, maxLength) => {
     return text.length > maxLength;
@@ -98,11 +97,11 @@ export default class Frames extends Component {
         loading: false,
       };
 
-      const { savedMovies } = this.state;
+      const { ratedMovies } = this.state;
 
-      if (savedMovies.length !== 0) {
+      if (ratedMovies.length !== 0) {
         const moviesWithRating = movies.map((movie) => {
-          const ratedMovie = savedMovies.find((rm) => rm.id === movie.id);
+          const ratedMovie = ratedMovies.find((rm) => rm.id === movie.id);
           return ratedMovie ? { ...movie, rating: ratedMovie.rating } : movie;
         });
 
@@ -136,14 +135,16 @@ export default class Frames extends Component {
   }
 
   handleSetRating = (rating, id) => {
+    this.updateRatingMovies(rating, id);
+
     if (rating > 0) {
-      this.handleLoaded(false);
+      // this.handleLoaded(false);
       this.guestSession
         .setRatingMovie(this.guestSessionId, id, rating)
         .then((result) => {
           if (result.success) {
-            this.setState({ wasRated: true, loading: false, isActiveRatedTab: true });
-            this.updateRatingMovies(rating, id);
+            this.setState({ wasRated: true });
+            // this.updateRatingMovies(rating, id);
           }
         })
         .catch(this.onError);
@@ -153,9 +154,10 @@ export default class Frames extends Component {
         .resetRatingMovie(this.guestSessionId, id)
         .then((result) => {
           if (result.success) {
-            this.updateRatingMovies(rating, id);
+            // this.updateRatingMovies(rating, id);
             this.setState({ loading: false, isActiveRatedTab: true }, () => {
-              if (this.state.ratedMovies.length > 0) {
+              console.log('ratedMovies', this.state.ratedMovies.length);
+              if (this.state.ratedMovies.length === 19) {
                 this.handleRatedMoviesRequest(1);
               }
             });
@@ -166,29 +168,23 @@ export default class Frames extends Component {
   };
 
   updateRatingMovies = (rating, id) => {
-    this.setState(({ movies, savedMovies, ratedMovies }) => {
+    this.setState(({ movies, ratedMovies }) => {
       const updatedMovies = movies.map((movie) => (movie.id === id ? { ...movie, rating } : movie));
 
-      const savedMovieIndex = savedMovies.findIndex((movie) => movie.id === id);
-      let updatedSavedMovies;
+      const ratedMovieIndex = ratedMovies.findIndex((movie) => movie.id === id);
       let updatedRatedMovies;
 
-      if (savedMovieIndex !== -1) {
-        updatedSavedMovies = savedMovies
-          .map((movie) => (movie.id === id ? { ...movie, rating } : movie))
-          .filter((movie) => movie.rating > 0);
-
+      if (ratedMovieIndex !== -1) {
         updatedRatedMovies = ratedMovies
           .map((movie) => (movie.id === id ? { ...movie, rating } : movie))
           .filter((movie) => movie.rating > 0);
       } else {
         const movieToSave = updatedMovies.find((movie) => movie.id === id);
-        updatedSavedMovies = [...savedMovies, { ...movieToSave, rating }];
+        updatedRatedMovies = [...ratedMovies, { ...movieToSave, rating }];
       }
 
       return {
         movies: updatedMovies,
-        savedMovies: updatedSavedMovies,
         ratedMovies: updatedRatedMovies,
       };
     });
@@ -196,7 +192,7 @@ export default class Frames extends Component {
 
   handleTabClick = (key) => {
     if (key === 'rated') {
-      if (this.state.savedMovies.length !== 0 && this.state.wasRated) {
+      if (this.state.ratedMovies.length !== 0 && this.state.wasRated) {
         this.handleRatedMoviesRequest(1);
       }
     }
