@@ -130,21 +130,16 @@ export default class Frames extends Component {
     this.setState({ loading: true, empty: false, isActiveRatedTab });
   };
 
-  componentDidUpdate() {
-    console.log('Update');
-  }
-
   handleSetRating = (rating, id) => {
     this.updateRatingMovies(rating, id);
 
     if (rating > 0) {
-      // this.handleLoaded(false);
+      this.handleLoaded(false);
       this.guestSession
         .setRatingMovie(this.guestSessionId, id, rating)
         .then((result) => {
           if (result.success) {
-            this.setState({ wasRated: true });
-            // this.updateRatingMovies(rating, id);
+            this.setState({ wasRated: true, loading: false, isActiveRatedTab: true });
           }
         })
         .catch(this.onError);
@@ -154,9 +149,7 @@ export default class Frames extends Component {
         .resetRatingMovie(this.guestSessionId, id)
         .then((result) => {
           if (result.success) {
-            // this.updateRatingMovies(rating, id);
             this.setState({ loading: false, isActiveRatedTab: true }, () => {
-              console.log('ratedMovies', this.state.ratedMovies.length);
               if (this.state.ratedMovies.length === 19) {
                 this.handleRatedMoviesRequest(1);
               }
