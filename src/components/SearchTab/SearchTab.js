@@ -57,13 +57,26 @@ const SearchTab = ({
                     <div className="title">
                       <Title level={5} className="frame__title">
                         {movie.title}
+                        <div style={{ marginBottom: '7px', color: '#827E7E' }}>{releaseDate}</div>
+                        {/* <List
+                          className="genres-list"
+                          itemLayout="horizontal"
+                          dataSource={movie.genre_ids.length > 0 ? movie.genre_ids : ['no-genre']}
+                          renderItem={(genreId) => (
+                            <List.Item key={movie.genre_ids} className="genres-list__item">
+                              {onGetGenres(genres, genreId)}
+                            </List.Item>
+                          )}
+                        /> */}
                       </Title>
                       <div className="rating" style={{ borderColor: `${onGetColor(+movie.vote_average.toFixed(1))}` }}>
                         <span className="rating__text">{movie.vote_average.toFixed(1)}</span>
                       </div>
                     </div>
-                    <div style={{ marginBottom: '7px', color: '#827E7E' }}>{releaseDate}</div>
                   </Layout>
+                  <Tooltip title={isTruncated ? movie.overview : null}>
+                    <Paragraph className="frame__overview">{truncatedText}</Paragraph>
+                  </Tooltip>
                   {/* <Image className="img" width={183} height={281} alt={movie.title} src={pic} />
                   <Layout style={{ width: '228px', backgroundColor: '#ffffff' }}>
                     <div className="title">
