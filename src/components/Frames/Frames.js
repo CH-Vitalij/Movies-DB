@@ -3,7 +3,7 @@ import { Layout, Spin, Alert, Button, Popover, Modal, Empty, Tabs, Flex } from '
 
 import SearchTab from '../SearchTab';
 import RatedTab from '../RatedTab';
-// import SearchBar from '../SearchBar/SearchBar';
+import SearchBar from '../SearchBar/SearchBar';
 import NetworkState from '../NetworkState';
 import MoviesService from '../../services/Movies-service';
 import GuestSessionService from '../../services/GuestSession-service';
@@ -86,7 +86,7 @@ export default class Frames extends Component {
 
     this.movie.getMovies(searchQuery, pageNum).then((result) => {
       const { pageSearch, movies, totalMoviesSearch, totalPagesSearch } = result;
-      const truncated = movies.map((movie) => this.isTextTruncated(movie.overview, 100));
+      const truncated = movies.map((movie) => this.isTextTruncated(movie.overview, 204));
       const searchResults = {
         pageSearch,
         totalMoviesSearch,
@@ -255,7 +255,7 @@ export default class Frames extends Component {
 
     const spinner = loading ? <Spin size="large" /> : null;
 
-    // const searchBar = <SearchBar onValuesChange={this.handleDataRequest} />;
+    const searchBar = <SearchBar onValuesChange={this.handleDataRequest} />;
 
     const frames = hasData ? (
       <SearchTab
@@ -295,7 +295,7 @@ export default class Frames extends Component {
         children: (
           <Flex vertical="true" align="center">
             {errorMessage}
-            {/* {searchBar} */}
+            {searchBar}
             {empty ? <Empty description={messageInfo} /> : null}
             {spinner}
             {frames}

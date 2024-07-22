@@ -10,9 +10,6 @@ export default class SearchBar extends Component {
       <Form
         name="search-movies"
         variant="outlined"
-        style={{
-          width: 938,
-        }}
         autoComplete="off"
         onValuesChange={debounce(this.props.onValuesChange, 1000)}
       >

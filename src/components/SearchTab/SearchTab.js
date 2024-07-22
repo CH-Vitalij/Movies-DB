@@ -64,7 +64,7 @@ export default class SearchTab extends Component {
             }}
             dataSource={movies}
             renderItem={(movie, i) => {
-              const truncatedText = movie.overview ? onTruncateText(movie.overview, 100) : '-';
+              const truncatedText = movie.overview ? onTruncateText(movie.overview, 204) : '-';
               const isTruncated = truncated[i];
               const releaseDate = movie.release_date
                 ? format(new Date(movie.release_date), 'MMMM d, yyyy')

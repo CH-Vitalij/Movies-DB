@@ -22,7 +22,7 @@
   justify-content: center;
   /* width: 1010px; */
   gap: 34px 36px;
-  margin-top: 21px;
+  /* margin-top: 21px; */
   margin-bottom: 36px;
   min-width: auto;
 }
@@ -52,22 +52,30 @@
   .ant-list-item.movies-list__frame {
     flex: 0 1 388px;
     max-height: 245px;
+    padding: 6px 10px;
   }
 }
 
 .content__frame {
-  width: 228px;
+  /* width: 228px; */
   background-color: #ffffff;
 }
 
 @media (max-width: 768px) {
   .content__frame {
     width: 368px;
+    max-height: 245px;
   }
 }
 
 .img.ant-image-img {
   background-color: grey;
+}
+
+@media (max-width: 768px) {
+  .ant-image {
+    margin-right: 13px;
+  }  
 }
 
 .header {
@@ -79,6 +87,7 @@
 @media (max-width: 768px) {
   .header {
     gap: initial;
+    margin-bottom: 10px;
   }
 }
 
@@ -87,7 +96,6 @@
 }
 
 .ant-typography.frame__header {
-  font-family: Inter UI;
   font-weight: 400;
   font-size: 20px;
   line-height: 28px;
@@ -96,14 +104,22 @@
   margin: 0;
   margin-top: 10px;
   margin-bottom: 7px;
-  width: 132px;
+  max-width: 132px;
+  font-family: 'Inter UI', sans-serif;                                                
+}
+
+@media (max-width: 768px) {
+  .ant-typography.frame__header {
+    margin-top: 0px;
+    max-width: 265px;
+  }
 }
 
 .frame__release-date {
   margin-bottom: 7px;
-  color: #827E7E
+  color: #827E7E;
+  font-family: 'Inter UI', sans-serif;                                                
 }
-
 
 .rating {
   display: inline-block;
@@ -112,7 +128,7 @@
   border: 2px solid #E9D100;
   border-radius: 16px;
   text-align: center;
-  margin-top: 10px;
+  margin-top: 10px;                                              
 }
 
 .rating__text {
@@ -120,23 +136,20 @@
   line-height: 22px;
   text-align: left;
   font-size: 12px;
+  font-family: 'Inter UI', sans-serif;                                                
 }
 
 .frame__overview {
   width: 228px;
-  font-family: Inter UI;
   font-weight: 400;
   flex: 1 1 auto;
   background-color: #ffffff;
+  font-family: 'Inter UI', sans-serif;
 }
 
 @media (max-width: 768px) {
   .frame__overview {
     width: 100%;
-    font-family: Inter UI;
-    font-weight: 400;
-    flex: 1 1 auto;
-    background-color: #ffffff;
   }
 }
 
@@ -149,6 +162,12 @@
   padding: 0;
   margin: 0;
   margin-bottom: 7px;
+}
+
+@media (max-width: 768px) {
+  .frame__genres-list .ant-list-items {
+    flex-direction: row;
+  }
 }
 
 .ant-list-item.frame__genres-list-item {
@@ -169,10 +188,14 @@
   padding-left: 5px;
   padding-right: 4px;
   padding-bottom: 3px;
+  font-family: 'Inter', sans-serif;
 }
 
-.rate {
-  margin-bottom: 10px;
+@media (max-width: 768px) {
+  .rate {
+    display: flex;   
+    justify-content: flex-end;
+  }
 }
 
 .rate .ant-rate-star {
