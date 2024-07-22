@@ -34,8 +34,8 @@ export default class Frames extends Component {
   };
 
   componentDidMount() {
-    // this.guestSessionId = '72403cc5766c7c78432f8f86b19097cb';
-    this.DataRequest('the way back');
+    // this.guestSessionId = '88ed6ed1f9f7bd23c09b2c7ff5e21567';
+    this.DataRequest('The Chronicles of Narnia');
   }
 
   // componentDidMount() {
@@ -86,7 +86,7 @@ export default class Frames extends Component {
 
     this.movie.getMovies(searchQuery, pageNum).then((result) => {
       const { pageSearch, movies, totalMoviesSearch, totalPagesSearch } = result;
-      const truncated = movies.map((movie) => this.isTextTruncated(movie.overview, 204));
+      const truncated = movies.map((movie) => this.isTextTruncated(movie.overview, 150));
       const searchResults = {
         pageSearch,
         totalMoviesSearch,

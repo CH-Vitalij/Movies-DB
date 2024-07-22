@@ -1,14 +1,14 @@
 .box {
   display: flex;
   align-items: center;
-  flex: auto;
+  flex: none;
   background-color: #ffffff;
   width: 1010px;
   min-height: 100vh;
   padding: 32px 36px 17px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 992px) {
   .box {
     width: 420px;
     padding: 0 16px;
@@ -20,14 +20,13 @@
   flex-wrap: wrap;
   flex-direction: row;
   justify-content: center;
-  /* width: 1010px; */
   gap: 34px 36px;
-  /* margin-top: 21px; */
   margin-bottom: 36px;
   min-width: auto;
+  width: 938px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 992px) {
   .movies-list .ant-list-items {
     flex-direction: column;
     width: 388px;
@@ -40,15 +39,15 @@
 
 .ant-list-item.movies-list__frame {
   align-items: stretch;
-  gap: 20px;
   box-shadow: 0px 4px 12px 0px #00000026;
+  background-color: #ffffff;
   padding: 0;
   border-block-end: none;
   flex: 0 1 451px;
   max-height: 281px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 992px) {
   .ant-list-item.movies-list__frame {
     flex: 0 1 388px;
     max-height: 245px;
@@ -57,22 +56,33 @@
 }
 
 .content__frame {
-  /* width: 228px; */
   background-color: #ffffff;
+  padding-left: 20px;
+  padding-right: 8px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 992px) {
   .content__frame {
     width: 368px;
     max-height: 245px;
+    padding: 0;
   }
 }
 
 .img.ant-image-img {
   background-color: grey;
+  width: 183px;
+  height: 281px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 992px) {
+  .img.ant-image-img {
+    width: 60px;
+    height: 91px;
+  }
+}
+
+@media (max-width: 992px) {
   .ant-image {
     margin-right: 13px;
   }  
@@ -81,10 +91,9 @@
 .header {
   display: flex;
   flex-wrap: nowrap;
-  gap: 77px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 992px) {
   .header {
     gap: initial;
     margin-bottom: 10px;
@@ -93,6 +102,13 @@
 
 .header__collapse {
   flex: auto;
+  max-width: 210px;
+}
+
+@media (max-width: 992px) {
+  .header__collapse {
+    max-width: 265px;
+  }
 }
 
 .ant-typography.frame__header {
@@ -104,14 +120,15 @@
   margin: 0;
   margin-top: 10px;
   margin-bottom: 7px;
-  max-width: 132px;
-  font-family: 'Inter UI', sans-serif;                                                
+  font-family: 'Inter UI', sans-serif;  
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;                                            
 }
 
-@media (max-width: 768px) {
+@media (max-width: 992px) {
   .ant-typography.frame__header {
     margin-top: 0px;
-    max-width: 265px;
   }
 }
 
@@ -131,6 +148,12 @@
   margin-top: 10px;                                              
 }
 
+@media (max-width: 992px) {
+  .rating {
+    margin-top: 0px;
+  }
+}
+
 .rating__text {
   vertical-align: middle;
   line-height: 22px;
@@ -147,7 +170,7 @@
   font-family: 'Inter UI', sans-serif;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 992px) {
   .frame__overview {
     width: 100%;
   }
@@ -164,9 +187,10 @@
   margin-bottom: 7px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 992px) {
   .frame__genres-list .ant-list-items {
     flex-direction: row;
+    margin-bottom: 0px;
   }
 }
 
@@ -191,7 +215,11 @@
   font-family: 'Inter', sans-serif;
 }
 
-@media (max-width: 768px) {
+.rate {
+  margin-bottom: 5px;
+}
+
+@media (max-width: 992px) {
   .rate {
     display: flex;   
     justify-content: flex-end;

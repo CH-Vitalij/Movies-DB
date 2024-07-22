@@ -10,7 +10,7 @@ export default class SearchTab extends Component {
   };
 
   componentDidMount() {
-    this.mediaQuery = window.matchMedia('(min-width: 768px)');
+    this.mediaQuery = window.matchMedia('(max-width: 992px)');
     this.mediaQuery.addEventListener('change', this.handleResize);
   }
 
@@ -64,7 +64,7 @@ export default class SearchTab extends Component {
             }}
             dataSource={movies}
             renderItem={(movie, i) => {
-              const truncatedText = movie.overview ? onTruncateText(movie.overview, 204) : '-';
+              const truncatedText = movie.overview ? onTruncateText(movie.overview, 150) : '-';
               const isTruncated = truncated[i];
               const releaseDate = movie.release_date
                 ? format(new Date(movie.release_date), 'MMMM d, yyyy')
@@ -75,18 +75,20 @@ export default class SearchTab extends Component {
 
               return (
                 <List.Item key={movie.id} className="movies-list__frame frame">
-                  {this.state.windowWidth ? (
+                  {!this.state.windowWidth ? (
                     <Image className="img" width={183} height={281} alt={movie.title} src={pic} />
                   ) : null}
                   <Layout className="content__frame">
                     <div className="header">
-                      {!this.state.windowWidth ? (
+                      {this.state.windowWidth ? (
                         <Image className="img" width={60} height={91} alt={movie.title} src={pic} />
                       ) : null}
                       <div className="header__collapse">
-                        <Title level={5} className="frame__header">
-                          {movie.title}
-                        </Title>
+                        <Tooltip title={movie.title} destroyTooltipOnHide={true}>
+                          <Title level={5} className="frame__header">
+                            {movie.title}
+                          </Title>
+                        </Tooltip>
                         <div className="frame__release-date">{releaseDate}</div>
                         <List
                           className="frame__genres-list"
