@@ -1,27 +1,50 @@
+import React, { Component } from 'react';
 import { List, Typography, Layout, Image, Tooltip, Rate } from 'antd';
 import { format } from 'date-fns';
 
 import { GenresConsumer } from '../GenresContext';
 
-const SearchTab = ({
-  movies,
-  page,
-  totalMovies,
-  truncated,
-  searchQuery,
-  onSetRating,
-  onTruncateText,
-  onDataRequest,
-  onLoaded,
-  onGetColor,
-  onGetGenres,
-}) => {
-  const { Paragraph, Title } = Typography;
+export default class SearchTab extends Component {
+  state = {
+    windowWidth: true,
+  };
 
-  return (
-    <GenresConsumer>
-      {({ genres }) => {
-        return (
+  componentDidMount() {
+    this.mediaQuery = window.matchMedia('(min-width: 768px)');
+    this.mediaQuery.addEventListener('change', this.handleResize);
+  }
+
+  componentWillUnmount() {
+    this.mediaQuery.removeEventListener('change', this.handleResize);
+  }
+
+  handleResize = () => {
+    if (this.mediaQuery.matches) {
+      this.setState({ windowWidth: true });
+    } else {
+      this.setState({ windowWidth: false });
+    }
+  };
+
+  render() {
+    const { Paragraph, Title } = Typography;
+    const {
+      movies,
+      page,
+      totalMovies,
+      truncated,
+      searchQuery,
+      onSetRating,
+      onTruncateText,
+      onDataRequest,
+      onLoaded,
+      onGetColor,
+      onGetGenres,
+    } = this.props;
+
+    return (
+      <GenresConsumer>
+        {({ genres }) => (
           <List
             className="movies-list"
             itemLayout="horizontal"
@@ -48,75 +71,55 @@ const SearchTab = ({
                 : 'No release date given';
               const pic = movie.poster_path
                 ? `https://image.tmdb.org/t/p/w500/${movie.poster_path}`
-                : 'https://avatars.mds.yandex.net/i?id=7750321ef5bc659110709a1f84465a7b1a208bb6-10143023-images-thumbs&n=13g';
+                : 'https://avatars.mds.yandex.net/i?id=7750321ef5bc659110709a1f84465a7b1a208bb6-10143023-images-thumbs&n=13';
 
               return (
                 <List.Item key={movie.id} className="movies-list__frame frame">
-                  <Layout className="layout1">
-                    <Image className="img" width={60} height={91} alt={movie.title} src={pic} />
-                    <div className="title">
-                      <Title level={5} className="frame__title">
-                        {movie.title}
-                        <div style={{ marginBottom: '7px', color: '#827E7E' }}>{releaseDate}</div>
-                        {/* <List
-                          className="genres-list"
+                  {this.state.windowWidth ? (
+                    <Image className="img" width={183} height={281} alt={movie.title} src={pic} />
+                  ) : null}
+                  <Layout className="content__frame">
+                    <div className="header">
+                      {!this.state.windowWidth ? (
+                        <Image className="img" width={60} height={91} alt={movie.title} src={pic} />
+                      ) : null}
+                      <div className="header__collapse">
+                        <Title level={5} className="frame__header">
+                          {movie.title}
+                        </Title>
+                        <div className="frame__release-date">{releaseDate}</div>
+                        <List
+                          className="frame__genres-list"
                           itemLayout="horizontal"
                           dataSource={movie.genre_ids.length > 0 ? movie.genre_ids : ['no-genre']}
                           renderItem={(genreId) => (
-                            <List.Item key={movie.genre_ids} className="genres-list__item">
+                            <List.Item key={genreId} className="frame__genres-list-item">
                               {onGetGenres(genres, genreId)}
                             </List.Item>
                           )}
-                        /> */}
-                      </Title>
+                        />
+                      </div>
                       <div className="rating" style={{ borderColor: `${onGetColor(+movie.vote_average.toFixed(1))}` }}>
                         <span className="rating__text">{movie.vote_average.toFixed(1)}</span>
                       </div>
                     </div>
-                  </Layout>
-                  <Tooltip title={isTruncated ? movie.overview : null}>
-                    <Paragraph className="frame__overview">{truncatedText}</Paragraph>
-                  </Tooltip>
-                  {/* <Image className="img" width={183} height={281} alt={movie.title} src={pic} />
-                  <Layout style={{ width: '228px', backgroundColor: '#ffffff' }}>
-                    <div className="title">
-                      <Title level={5} className="frame__title">
-                        {movie.title}
-                      </Title>
-                      <div className="rating" style={{ borderColor: `${onGetColor(+movie.vote_average.toFixed(1))}` }}>
-                        <span className="rating__text">{movie.vote_average.toFixed(1)}</span>
-                      </div>
-                    </div>
-                    <div style={{ marginBottom: '7px', color: '#827E7E' }}>{releaseDate}</div>
-                    <List
-                      className="genres-list"
-                      itemLayout="horizontal"
-                      dataSource={movie.genre_ids.length > 0 ? movie.genre_ids : ['no-genre']}
-                      renderItem={(genreId) => (
-                        <List.Item key={movie.genre_ids} className="genres-list__item">
-                          {onGetGenres(genres, genreId)}
-                        </List.Item>
-                      )}
-                    />
                     <Tooltip title={isTruncated ? movie.overview : null}>
                       <Paragraph className="frame__overview">{truncatedText}</Paragraph>
                     </Tooltip>
                     <Rate
-                      allowHalf="true"
+                      allowHalf={true}
                       count={10}
                       className="rate"
                       value={movie.rating}
                       onChange={(value) => onSetRating(value, movie.id)}
                     />
-                  </Layout> */}
+                  </Layout>
                 </List.Item>
               );
             }}
           />
-        );
-      }}
-    </GenresConsumer>
-  );
-};
-
-export default SearchTab;
+        )}
+      </GenresConsumer>
+    );
+  }
+}

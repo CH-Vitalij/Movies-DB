@@ -3,7 +3,7 @@ import { Layout, Spin, Alert, Button, Popover, Modal, Empty, Tabs, Flex } from '
 
 import SearchTab from '../SearchTab';
 import RatedTab from '../RatedTab';
-import SearchBar from '../SearchBar/SearchBar';
+// import SearchBar from '../SearchBar/SearchBar';
 import NetworkState from '../NetworkState';
 import MoviesService from '../../services/Movies-service';
 import GuestSessionService from '../../services/GuestSession-service';
