@@ -6,7 +6,7 @@ import { GenresConsumer } from '../GenresContext';
 
 export default class SearchTab extends Component {
   state = {
-    windowWidth: true,
+    windowWidth: false,
   };
 
   componentDidMount() {

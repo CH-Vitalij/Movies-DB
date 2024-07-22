@@ -33,21 +33,21 @@ export default class Frames extends Component {
     isActiveRatedTab: true,
   };
 
-  componentDidMount() {
-    // this.guestSessionId = '88ed6ed1f9f7bd23c09b2c7ff5e21567';
-    this.DataRequest('The Chronicles of Narnia');
-  }
-
   // componentDidMount() {
-  //   this.guestSession
-  //     .createGuestSession()
-  //     .then((result) => {
-  //       const { guestSessionId } = result;
-  //       console.log(guestSessionId);
-  //       this.guestSessionId = guestSessionId;
-  //     })
-  //     .catch(this.onError);
+  //   // this.guestSessionId = '489bb84209f542e53eec5c9cff8985a3';
+  //   this.DataRequest('The Chronicles of Narnia');
   // }
+
+  componentDidMount() {
+    this.guestSession
+      .createGuestSession()
+      .then((result) => {
+        const { guestSessionId } = result;
+        console.log(guestSessionId);
+        this.guestSessionId = guestSessionId;
+      })
+      .catch(this.onError);
+  }
 
   isTextTruncated = (text, maxLength) => {
     return text.length > maxLength;

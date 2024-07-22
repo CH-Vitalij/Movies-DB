@@ -7,15 +7,21 @@ const GenresContext = React.createContext();
 export class GenresProvider extends React.Component {
   state = {
     genres: [],
+    loading: true,
   };
 
   componentDidMount() {
     const movie = new MoviesService();
-    movie.getGenres().then((genres) => this.setState({ genres }));
+    movie.getGenres().then((genres) => this.setState({ genres, loading: false }));
   }
 
   render() {
-    return <GenresContext.Provider value={this.state.genres}>{this.props.children}</GenresContext.Provider>;
+    const { genres } = this.state;
+    const { children } = this.props;
+
+    if (!this.state.loading) {
+      return <GenresContext.Provider value={genres}>{children}</GenresContext.Provider>;
+    }
   }
 }
 
