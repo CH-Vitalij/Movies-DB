@@ -49,7 +49,6 @@ export default class GuestSessionService {
     const res = await this.fetchResource(
       `/3/guest_session/${guestSessionId}/rated/movies?language=en-US&page=${pageNum}&sort_by=created_at.asc`,
     );
-    console.log(res);
     return this.transformData(res);
   }
 
