@@ -1,0 +1,214 @@
+.rated-tab__movies-list .ant-list-items {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  justify-content: center;
+  gap: 34px 36px;
+  margin-bottom: 36px;
+  min-width: auto;
+  width: 938px;
+}
+
+@media (max-width: 992px) {
+  .rated-tab__movies-list .ant-list-items {
+    flex-direction: column;
+    width: 388px;
+  }
+}
+
+.rated-tab__movies-list .ant-list-pagination {
+  margin-block-start: 0;
+}
+
+.ant-list-item.rated-tab__frame {
+  align-items: stretch;
+  box-shadow: 0px 4px 12px 0px #00000026;
+  background-color: #ffffff;
+  padding: 0;
+  border-block-end: none;
+  flex: 0 1 451px;
+  max-height: 281px;
+}
+
+@media (max-width: 992px) {
+  .ant-list-item.rated-tab__frame {
+    flex: 0 1 388px;
+    max-height: 245px;
+    padding: 6px 10px;
+  }
+}
+
+.frame__body {
+  background-color: #ffffff;
+  padding-left: 20px;
+  padding-right: 8px;
+}
+
+@media (max-width: 992px) {
+  .frame__body {
+    width: 368px;
+    max-height: 245px;
+    padding: 0;
+  }
+}
+
+.frame__img.ant-image-img {
+  background-color: grey;
+  width: 183px;
+  height: 281px;
+}
+
+@media (max-width: 992px) {
+  .frame__img.ant-image-img {
+    width: 60px;
+    height: 91px;
+  }
+}
+
+@media (max-width: 992px) {
+  .ant-image {
+    margin-right: 13px;
+  }  
+}
+
+.frame__header {
+  display: flex;
+  flex-wrap: nowrap;
+}
+
+@media (max-width: 992px) {
+  .frame__header {
+    gap: initial;
+    margin-bottom: 10px;
+  }
+}
+
+.frame__header-collapse {
+  flex: auto;
+  max-width: 210px;
+}
+
+@media (max-width: 992px) {
+  .frame__header-collapse {
+    max-width: 265px;
+  }
+}
+
+.ant-typography.frame__title {
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 28px;
+  text-align: left;
+  color: #000000;
+  margin: 0;
+  margin-top: 10px;
+  margin-bottom: 7px;
+  font-family: 'Inter UI', sans-serif;  
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;                                            
+}
+
+@media (max-width: 992px) {
+  .ant-typography.frame__title {
+    margin-top: 0px;
+  }
+}
+
+.frame__release-date {
+  margin-bottom: 7px;
+  color: #827E7E;
+  font-family: 'Inter UI', sans-serif;                                                
+}
+
+.frame__rating {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  border: 2px solid #E9D100;
+  border-radius: 16px;
+  text-align: center;
+  margin-top: 10px;                                              
+}
+
+@media (max-width: 992px) {
+  .frame__rating {
+    margin-top: 0px;
+  }
+}
+
+.frame__rating-text {
+  vertical-align: middle;
+  line-height: 22px;
+  text-align: left;
+  font-size: 12px;
+  font-family: 'Inter UI', sans-serif;                                                
+}
+
+.frame__overview {
+  width: 228px;
+  font-weight: 400;
+  flex: 1 1 auto;
+  background-color: #ffffff;
+  font-family: 'Inter UI', sans-serif;
+}
+
+@media (max-width: 992px) {
+  .frame__overview {
+    width: 100%;
+  }
+}
+
+.frame__genres-list .ant-list-items {
+  display: flex;
+  width: 100%;
+  justify-content: flex-start;
+  gap: 8px;
+  background-color: #ffffff;
+  padding: 0;
+  margin: 0;
+  margin-bottom: 7px;
+}
+
+@media (max-width: 992px) {
+  .frame__genres-list .ant-list-items {
+    flex-direction: row;
+    margin-bottom: 0px;
+  }
+}
+
+.ant-list-item.frame__genres-list-item {
+  border-block-end: none;
+  padding: 0;
+  display: block;
+  border: 1px solid #D9D9D9 !important;
+  background: #FAFAFA;
+  height: 20px;
+  border-radius: 2px;
+  opacity: 65%;
+  font-family: Inter;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 14.52px;
+  text-align: left;
+  padding-top: 2px;
+  padding-left: 5px;
+  padding-right: 4px;
+  padding-bottom: 3px;
+  font-family: 'Inter', sans-serif;
+}
+
+.frame__rate {
+  margin-bottom: 5px;
+}
+
+@media (max-width: 992px) {
+  .frame__rate {
+    display: flex;   
+    justify-content: flex-end;
+  }
+}
+
+.frame__rate .ant-rate-star {
+  margin-inline-end: 4px !important;
+}

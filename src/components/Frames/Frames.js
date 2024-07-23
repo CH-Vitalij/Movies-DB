@@ -308,7 +308,7 @@ export default class Frames extends Component {
         key: 'search',
         label: 'Search',
         children: (
-          <Flex vertical="true" align="center">
+          <Flex className="search-tab" vertical="true" align="center">
             {errorMessage}
             {searchBar}
             {empty ? <Empty description={messageInfo} /> : null}
@@ -322,7 +322,7 @@ export default class Frames extends Component {
         label: 'Rated',
         disabled: isActiveRatedTab ? false : true,
         children: (
-          <Flex vertical="true" align="center">
+          <Flex className="rateb-tab" vertical="true" align="center">
             {errorMessage}
             {empty ? <Empty description={messageInfo} /> : null}
             {spinner}
@@ -333,7 +333,7 @@ export default class Frames extends Component {
     ];
 
     return (
-      <Layout className="box">
+      <Layout className="wrapper">
         <NetworkState>
           <Tabs items={elements} centered onTabClick={(key) => this.handleTabClick(key)} />
         </NetworkState>

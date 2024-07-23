@@ -3,6 +3,7 @@ import { List, Typography, Layout, Image, Tooltip, Rate } from 'antd';
 import { format } from 'date-fns';
 
 import { GenresConsumer } from '../GenresContext';
+import './SearchTab.css';
 
 export default class SearchTab extends Component {
   render() {
@@ -24,7 +25,7 @@ export default class SearchTab extends Component {
 
     return (
       <List
-        className="movies-list"
+        className="search-tab__movies-list"
         itemLayout="horizontal"
         locale={{ emptyText: ' ' }}
         pagination={{
@@ -55,18 +56,18 @@ export default class SearchTab extends Component {
             <GenresConsumer>
               {({ genres }) => {
                 return (
-                  <List.Item key={movie.id} className="movies-list__frame frame">
+                  <List.Item key={movie.id} className="search-tab__frame frame">
                     {!windowWidth ? (
-                      <Image className="img" width={183} height={281} alt={movie.title} src={pic} />
+                      <Image className="frame__img" width={183} height={281} alt={movie.title} src={pic} />
                     ) : null}
-                    <Layout className="content__frame">
-                      <div className="header">
+                    <Layout className="frame__body">
+                      <div className="frame__header">
                         {windowWidth ? (
-                          <Image className="img" width={60} height={91} alt={movie.title} src={pic} />
+                          <Image className="frame__img" width={60} height={91} alt={movie.title} src={pic} />
                         ) : null}
-                        <div className="header__collapse">
+                        <div className="frame__header-collapse">
                           <Tooltip title={movie.title} destroyTooltipOnHide={true}>
-                            <Title level={5} className="frame__header">
+                            <Title level={5} className="frame__title">
                               {movie.title}
                             </Title>
                           </Tooltip>
@@ -83,10 +84,10 @@ export default class SearchTab extends Component {
                           />
                         </div>
                         <div
-                          className="rating"
+                          className="frame__rating"
                           style={{ borderColor: `${onGetColor(+movie.vote_average.toFixed(1))}` }}
                         >
-                          <span className="rating__text">{movie.vote_average.toFixed(1)}</span>
+                          <span className="frame__rating-text">{movie.vote_average.toFixed(1)}</span>
                         </div>
                       </div>
                       <Tooltip title={isTruncated ? movie.overview : null}>
@@ -95,7 +96,7 @@ export default class SearchTab extends Component {
                       <Rate
                         allowHalf={true}
                         count={10}
-                        className="rate"
+                        className="frame__rate"
                         value={movie.rating}
                         onChange={(value) => onSetRating(value, movie.id)}
                       />
