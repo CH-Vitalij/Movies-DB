@@ -31,11 +31,12 @@ export default class Frames extends Component {
     ratedMovies: [],
     wasRated: false,
     isActiveRatedTab: true,
+    windowWidth: false,
   };
 
   // componentDidMount() {
-  //   // this.guestSessionId = '489bb84209f542e53eec5c9cff8985a3';
-  //   this.DataRequest('The Chronicles of Narnia');
+  //   this.guestSessionId = 'c66ef3445dc80ddf71be55682ae2a50e';
+  //   // this.DataRequest('The Chronicles of Narnia');
   // }
 
   componentDidMount() {
@@ -45,9 +46,20 @@ export default class Frames extends Component {
         const { guestSessionId } = result;
         console.log(guestSessionId);
         this.guestSessionId = guestSessionId;
+        this.mediaQuery = window.matchMedia('(max-width: 992px)');
+        this.mediaQuery.addEventListener('change', this.handleResize);
+        this.handleResize(this.mediaQuery);
       })
       .catch(this.onError);
   }
+
+  handleResize = () => {
+    if (this.mediaQuery.matches) {
+      this.setState({ windowWidth: true });
+    } else {
+      this.setState({ windowWidth: false });
+    }
+  };
 
   isTextTruncated = (text, maxLength) => {
     return text.length > maxLength;
@@ -232,6 +244,7 @@ export default class Frames extends Component {
       searchQuery,
       ratedMovies,
       isActiveRatedTab,
+      windowWidth,
     } = this.state;
 
     const hasData = !(loading || error);
@@ -264,6 +277,7 @@ export default class Frames extends Component {
         totalMovies={totalMoviesSearch}
         truncated={truncated}
         searchQuery={searchQuery}
+        windowWidth={windowWidth}
         onSetRating={this.handleSetRating}
         onTruncateText={this.truncateText}
         onDataRequest={this.DataRequest}
@@ -279,6 +293,7 @@ export default class Frames extends Component {
         page={pageRated}
         totalMovies={totalMoviesRated}
         truncated={truncated}
+        windowWidth={windowWidth}
         onTruncateText={this.truncateText}
         onSetRating={this.handleSetRating}
         onRatedMoviesRequest={this.handleRatedMoviesRequest}
