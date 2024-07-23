@@ -1,10 +1,10 @@
-import React from 'react';
+import { createContext, Component } from 'react';
 
 import MoviesService from '../../services/Movies-service';
 
-const GenresContext = React.createContext();
+const GenresContext = createContext();
 
-export class GenresProvider extends React.Component {
+export class GenresProvider extends Component {
   state = {
     genres: [],
     loading: true,

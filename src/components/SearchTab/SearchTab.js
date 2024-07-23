@@ -2,10 +2,21 @@ import React, { Component } from 'react';
 import { List, Typography, Layout, Image, Tooltip, Rate } from 'antd';
 import { format } from 'date-fns';
 
+import ErrorMessage from '../ErrorMessage';
 import { GenresConsumer } from '../GenresContext';
+
 import './SearchTab.css';
 
 export default class SearchTab extends Component {
+  state = {
+    hasError: false,
+    errorDetail: '',
+  };
+
+  componentDidCatch(err) {
+    this.setState({ hasError: true, errorDetail: err });
+  }
+
   render() {
     const { Paragraph, Title } = Typography;
     const {
@@ -22,6 +33,11 @@ export default class SearchTab extends Component {
       onGetColor,
       onGetGenres,
     } = this.props;
+    const { hasError, errorDetail } = this.state;
+
+    if (hasError) {
+      return <ErrorMessage errorDetail={errorDetail} />;
+    }
 
     return (
       <List

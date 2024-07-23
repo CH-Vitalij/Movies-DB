@@ -1,5 +1,5 @@
 import { Component } from 'react';
-import { Layout, Spin, Alert, Button, Popover, Modal, Empty, Tabs, Flex } from 'antd';
+import { Layout, Spin, Empty, Tabs, Flex } from 'antd';
 
 import SearchTab from '../SearchTab';
 import RatedTab from '../RatedTab';
@@ -7,6 +7,7 @@ import SearchBar from '../SearchBar/SearchBar';
 import NetworkState from '../NetworkState';
 import MoviesService from '../../services/Movies-service';
 import GuestSessionService from '../../services/GuestSession-service';
+import ErrorMessage from '../ErrorMessage';
 import './Frames.css';
 
 export default class Frames extends Component {
@@ -32,6 +33,7 @@ export default class Frames extends Component {
     wasRated: false,
     isActiveRatedTab: true,
     windowWidth: false,
+    hasError: false,
   };
 
   // componentDidMount() {
@@ -51,6 +53,10 @@ export default class Frames extends Component {
         this.handleResize(this.mediaQuery);
       })
       .catch(this.onError);
+  }
+
+  componentDidCatch(err) {
+    this.setState({ hasError: true, errorDetail: err });
   }
 
   handleResize = () => {
@@ -96,39 +102,44 @@ export default class Frames extends Component {
   DataRequest = (searchQuery, pageNum, emptyText) => {
     this.handleLoaded();
 
-    this.movie.getMovies(searchQuery, pageNum).then((result) => {
-      const { pageSearch, movies, totalMoviesSearch, totalPagesSearch } = result;
-      const truncated = movies.map((movie) => this.isTextTruncated(movie.overview, 150));
-      const searchResults = {
-        pageSearch,
-        totalMoviesSearch,
-        totalPagesSearch,
-        truncated,
-        searchQuery,
-        empty: movies.length === 0 && !emptyText,
-        messageInfo: movies.length === 0 && !emptyText ? `No movie with the title "${searchQuery}" was found.` : '',
-        loading: false,
-      };
+    this.movie
+      .getMovies(searchQuery, pageNum)
+      .then((result) => {
+        const { pageSearch, movies, totalMoviesSearch, totalPagesSearch } = result;
+        const truncated = movies.map((movie) => this.isTextTruncated(movie.overview, 150));
+        const searchResults = {
+          pageSearch,
+          totalMoviesSearch,
+          totalPagesSearch,
+          truncated,
+          searchQuery,
+          empty: movies.length === 0 && !emptyText,
+          messageInfo: movies.length === 0 && !emptyText ? `No movie with the title "${searchQuery}" was found.` : '',
+          loading: false,
+        };
 
-      const { ratedMovies } = this.state;
+        const { ratedMovies } = this.state;
 
-      if (ratedMovies.length !== 0) {
-        const moviesWithRating = movies.map((movie) => {
-          const ratedMovie = ratedMovies.find((rm) => rm.id === movie.id);
-          return ratedMovie ? { ...movie, rating: ratedMovie.rating } : movie;
-        });
+        if (ratedMovies.length !== 0) {
+          const moviesWithRating = movies.map((movie) => {
+            const ratedMovie = ratedMovies.find((rm) => rm.id === movie.id);
+            return ratedMovie ? { ...movie, rating: ratedMovie.rating } : movie;
+          });
 
-        this.setState({
-          ...searchResults,
-          movies: moviesWithRating,
-        });
-      } else {
-        this.setState({
-          ...searchResults,
-          movies,
-        });
-      }
-    });
+          this.setState({
+            ...searchResults,
+            movies: moviesWithRating,
+          });
+        } else {
+          this.setState({
+            ...searchResults,
+            movies,
+          });
+        }
+      })
+      .catch((err) => {
+        this.onError(err);
+      });
   };
 
   handleDataRequest = (searchQuery) => {
@@ -245,30 +256,16 @@ export default class Frames extends Component {
       ratedMovies,
       isActiveRatedTab,
       windowWidth,
+      hasError,
     } = this.state;
 
     const hasData = !(loading || error);
 
-    const errorMessage = error ? (
-      <Modal closable={false} footer={null} open={error}>
-        <Alert
-          message="Woops... Something went wrong, try again later"
-          showIcon
-          type="error"
-          action={
-            <Popover content={errorDetail.toString()}>
-              <Button size="small" danger>
-                Detail
-              </Button>
-            </Popover>
-          }
-        />
-      </Modal>
-    ) : null;
+    const errorMessage = error ? <ErrorMessage errorDetail={errorDetail} /> : null;
 
     const spinner = loading ? <Spin size="large" /> : null;
 
-    const searchBar = <SearchBar onValuesChange={this.handleDataRequest} />;
+    const searchBar = hasData ? <SearchBar onValuesChange={this.handleDataRequest} /> : null;
 
     const frames = hasData ? (
       <SearchTab
@@ -332,10 +329,15 @@ export default class Frames extends Component {
       },
     ];
 
+    if (hasError) {
+      return <ErrorMessage errorDetail={errorDetail} />;
+    }
+
     return (
       <Layout className="wrapper">
         <NetworkState>
-          <Tabs items={elements} centered onTabClick={(key) => this.handleTabClick(key)} />
+          {errorMessage}
+          {!error ? <Tabs items={elements} centered onTabClick={(key) => this.handleTabClick(key)} /> : null}
         </NetworkState>
       </Layout>
     );

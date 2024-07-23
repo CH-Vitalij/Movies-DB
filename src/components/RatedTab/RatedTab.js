@@ -3,9 +3,20 @@ import { format } from 'date-fns';
 import { Component } from 'react';
 
 import { GenresConsumer } from '../GenresContext';
+import ErrorMessage from '../ErrorMessage';
+
 import './RatedTab.css';
 
 export default class RatedTab extends Component {
+  state = {
+    hasError: false,
+    errorDetail: '',
+  };
+
+  componentDidCatch(err) {
+    this.setState({ hasError: true, errorDetail: err });
+  }
+
   render() {
     const { Paragraph, Title } = Typography;
     const {
@@ -21,6 +32,11 @@ export default class RatedTab extends Component {
       onGetColor,
       onGetGenres,
     } = this.props;
+    const { hasError, errorDetail } = this.state;
+
+    if (hasError) {
+      return <ErrorMessage errorDetail={errorDetail} />;
+    }
 
     return (
       <List
