@@ -46,7 +46,6 @@ export default class Frames extends Component {
       .createGuestSession()
       .then((result) => {
         const { guestSessionId } = result;
-        console.log(guestSessionId);
         this.guestSessionId = guestSessionId;
         this.mediaQuery = window.matchMedia('(max-width: 992px)');
         this.mediaQuery.addEventListener('change', this.handleResize);

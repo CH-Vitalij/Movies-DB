@@ -8,14 +8,13 @@ const GenresContext = createContext();
 export class GenresProvider extends Component {
   state = {
     genres: [],
-    loading: false,
+    loading: true,
     error: false,
     errorDetail: '',
   };
 
   componentDidMount() {
     const movie = new MoviesService();
-    this.setState({ loading: true });
     movie
       .getGenres()
       .then((genres) => this.setState({ genres, loading: false }))
