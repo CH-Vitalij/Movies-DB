@@ -265,7 +265,7 @@ export default class Frames extends Component {
 
     const spinner = loading ? <Spin size="large" /> : null;
 
-    const searchBar = hasData ? <SearchBar onValuesChange={this.handleDataRequest} /> : null;
+    const searchBar = <SearchBar onValuesChange={this.handleDataRequest} />;
 
     const frames = hasData ? (
       <SearchTab
